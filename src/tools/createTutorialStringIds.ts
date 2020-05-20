@@ -1,6 +1,10 @@
 import { window, Range } from 'vscode';
 import { getFilenameFromPath, padNumber } from '../helpers/helpers';
 
+/**
+ * Creates `stringId` entries for the mission name, descriptions and all conditions and its windows.
+ * Only sets them if the element already has a `stringId` attribute.
+ */
 export async function createTutorialStringIds() {
 	const editor = window.activeTextEditor;
 
@@ -9,7 +13,7 @@ export async function createTutorialStringIds() {
 		const filename = getFilenameFromPath(document.uri.path).toLocaleLowerCase();
 
 		if ('file' === document.uri.scheme && filename.endsWith('.xml')) {
-			let stringIdBase = getStringIdBaseFromFilename(filename);
+			const stringIdBase = await getStringIdBase(filename);
 
 			let text = document.getText();
 
@@ -72,8 +76,58 @@ const getStringIdBaseFromFilename = (filename: string) => {
 		stringIdBaseAr.push('-CA' + padNumber(Number(pathBase[1]), 2));
 		stringIdBaseAr.push('-CA' + padNumber(Number(pathBase[2]), 2));
 		stringIdBaseAr.push('-TU' + padNumber(Number(pathBase[3]), 2));
-	}
-	let stringIdBase = stringIdBaseAr.join('');
 
-	return stringIdBase;
+		return stringIdBaseAr.join('');
+	}
+
+	return null;
 };
+
+/**
+ * Provides an input box with a pre-calculated `stringId` base and an option to enter a custom one
+ * @param {string} filename the file's name
+ * @returns {Promise<string>} The proposed or entered `stringId` base
+ */
+async function getStringIdBase(filename: string) {
+	const proposal = getStringIdBaseFromFilename(filename);
+	const regex = /^([A-Za-z0-9_])+$/gm;
+
+	// Show the input box and wait for input
+	let result = await window.showInputBox({
+		value: proposal ? proposal : undefined,
+		valueSelection: undefined,
+		placeHolder: 'Enter a stringId base',
+		prompt: 'Enter a stringId base',
+		validateInput: (text) => {
+			if (text.length === 0) {
+				return 'Give me something!';
+			}
+
+			let blocks = text.split('-');
+			for (let block of blocks) {
+				let test = block.match(regex);
+				let msg = 'The stringId needs to be in blocks of 4 characters (AAAA-AAAA-...).';
+				if (!test) {
+					msg += ` Invalid character in "${block}"`;
+					return msg;
+				}
+				if (test.length > 1) {
+					msg += ` Invalid separator character in "${block}"`;
+					return msg;
+				}
+				if (test[0].length < 4) {
+					msg += ` Less than 4 characters in "${block}"`;
+					return msg;
+				}
+				if (test[0].length > 4) {
+					msg += ` More than 4 characters in "${block}"`;
+					return msg;
+				}
+			}
+
+			return null;
+		},
+	});
+
+	return result;
+}
