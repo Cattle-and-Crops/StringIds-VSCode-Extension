@@ -25,9 +25,15 @@ export async function createTutorialStringIds() {
 				let trimmed = line.trim();
 
 				if (trimmed.startsWith('<name ')) {
-					// Ignore
+					stringId = `${stringIdBase}-TITL`;
+					line = line.replace(/stringId=".*?"/, `stringId="${stringId}"`);
 				} else if (trimmed.startsWith('<description ')) {
-					// Ignore
+					if (trimmed.search('type="short"') !== -1) {
+						stringId = `${stringIdBase}-DESS`;
+					} else if (trimmed.search('type="long"') !== -1) {
+						stringId = `${stringIdBase}-DESL`;
+					}
+					line = line.replace(/stringId=".*?"/, `stringId="${stringId}"`);
 				} else if (trimmed.startsWith('<condition ')) {
 					step++;
 					num = padNumber(step, 2);

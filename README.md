@@ -9,7 +9,12 @@ Requires VS Code v1.45.0 or higher.
 
 ## Release Notes
 
+### 0.0.2
+
+Description stringId (long & short desc)
+
 ### 0.0.1
 
 Initial release.
+
 

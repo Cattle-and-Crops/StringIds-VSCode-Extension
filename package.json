@@ -2,7 +2,7 @@
 	"name": "cnc-mission-stringids",
 	"displayName": "Cattle and Crops Mission StringIds",
 	"description": "Sets new stringIds per condition",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"publisher": "JakobTischler",
 	"engines": {
 		"vscode": "^1.45.0"
