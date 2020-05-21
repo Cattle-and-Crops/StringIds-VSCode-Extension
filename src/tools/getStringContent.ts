@@ -107,54 +107,53 @@ async function getLanguage() {
 function getOutputData(parsedData: any) {
 	type stringIdEntry = { [key: string]: string };
 	const output: stringIdEntry[] = [];
-	const addOutputEntry = (key: string, value: string) => {
-		output.push({ [key]: value });
+
+	/**
+	 * Checks if the object exists, has all necessary attributes and adds the stringId and text to the output array
+	 * @param object The XML element's parsed object
+	 * @param hasDescriptionAttr Optionally defines if the `description` attribute should be used instead of the inner text
+	 */
+	const addOutputEntry = (object: any, hasDescriptionAttr?: boolean) => {
+		if (object && object.attr) {
+			const stringId = object.attr['@_stringId'];
+			const text = hasDescriptionAttr ? object.attr['@_description'] : object['#text'];
+			if (stringId && text) {
+				return output.push({ [stringId]: text }) > 0;
+			}
+		}
+		return false;
 	};
 
 	let m = parsedData.mission;
 	if (m) {
 		// Mission name
-		if (m.name) {
-			if (m.name.attr && m.name.attr['@_stringId'] && m.name['#text']) {
-				addOutputEntry(m.name.attr['@_stringId'], m.name['#text']);
-			}
-		}
+		addOutputEntry(m.name);
 
 		// Mission description
 		if (m.description) {
 			if (Array.isArray(m.description)) {
-				for (const d of m.description) {
-					if (d.attr && d.attr['@_stringId'] && d['#text']) {
-						addOutputEntry(d.attr['@_stringId'], d['#text']);
-					}
+				for (const description of m.description) {
+					addOutputEntry(description);
 				}
-			} else if (
-				m.description.attr &&
-				m.description.attr['@_stringId'] &&
-				m.description['#text']
-			) {
-				addOutputEntry(m.description.attr['@_stringId'], m.description['#text']);
+			} else {
+				addOutputEntry(m.description);
 			}
 		}
 
 		// Conditions
 		if (m.stop && m.stop.conditions && m.stop.conditions.condition) {
-			for (const c of m.stop.conditions.condition) {
+			for (const condition of m.stop.conditions.condition) {
 				// Condition
-				if (c.attr && c.attr['@_stringId'] && c.attr['@_description']) {
-					addOutputEntry(c.attr['@_stringId'], c.attr['@_description']);
-				}
+				addOutputEntry(condition, true);
 
 				// Condition window
-				if (c.window) {
-					if (Array.isArray(c.window)) {
-						for (const w of c.window) {
-							if (w.attr && w.attr['@_stringId'] && w['#text']) {
-								addOutputEntry(w.attr['@_stringId'], w['#text']);
-							}
+				if (condition.window) {
+					if (Array.isArray(condition.window)) {
+						for (const window of condition.window) {
+							addOutputEntry(window);
 						}
-					} else if (c.window.attr && c.window.attr['@_stringId'] && c.window['#text']) {
-						addOutputEntry(c.window.attr['@_stringId'], c.window['#text']);
+					} else {
+						addOutputEntry(condition.window);
 					}
 				}
 			}
