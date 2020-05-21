@@ -24,13 +24,31 @@
 		"commands": [
 			{
 				"command": "cnc-mission-stringids.createTutorialStringIds",
-				"title": "CNC: Create Tutorial StringIds"
+				"title": "Create Tutorial StringIds",
+				"category": "Cattle and Crops",
+				"when": "resourceExtname == .xml || editorLangId == xml"
 			},
 			{
 				"command": "cnc-mission-stringids.getStringContents",
-				"title": "CNC: Get String Contents"
+				"title": "Get String Contents",
+				"category": "Cattle and Crops",
+				"when": "resourceExtname == .xml || editorLangId == xml"
 			}
-		]
+		],
+		"menus": {
+			"editor/context": [
+				{
+					"command": "cnc-mission-stringids.createTutorialStringIds",
+					"group": "Cattle and Crops",
+					"when": "resourceExtname == .xml || editorLangId == xml"
+				},
+				{
+					"command": "cnc-mission-stringids.getStringContents",
+					"group": "Cattle and Crops",
+					"when": "resourceExtname == .xml || editorLangId == xml"
+				}
+			]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",

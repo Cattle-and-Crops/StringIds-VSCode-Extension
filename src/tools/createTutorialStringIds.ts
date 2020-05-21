@@ -7,65 +7,68 @@ import { getFilenameFromPath, padNumber } from '../helpers/helpers';
  */
 export async function createTutorialStringIds() {
 	const editor = window.activeTextEditor;
-
-	if (editor) {
-		const document = editor.document;
-		const filename = getFilenameFromPath(document.uri.path).toLocaleLowerCase();
-
-		if ('file' === document.uri.scheme && filename.endsWith('.xml')) {
-			const stringIdBase = await getStringIdBase(filename);
-
-			let text = document.getText();
-
-			// Go through text
-			const splitText = text.trim().split('\n');
-			const ret = [];
-
-			/**
-			 * Sets the provided value into an existing stringId attribute and returns the result
-			 * @param line Source line
-			 * @param value New stringId value
-			 */
-			const setLineStringId = (line: string, value: string) =>
-				line.replace(/stringId=".*?"/, `stringId="${value}"`);
-
-			let step = 0;
-			let num = '';
-			for (let lineNumber in splitText) {
-				let line = splitText[lineNumber];
-				let trimmed = line.trim();
-
-				if (trimmed.startsWith('<name ')) {
-					line = setLineStringId(line, `${stringIdBase}-TITL`);
-				} else if (trimmed.startsWith('<description ')) {
-					if (trimmed.search('type="short"') !== -1) {
-						line = setLineStringId(line, `${stringIdBase}-DESS`);
-					} else if (trimmed.search('type="long"') !== -1) {
-						line = setLineStringId(line, `${stringIdBase}-DESL`);
-					}
-				} else if (trimmed.startsWith('<condition ')) {
-					step++;
-					num = padNumber(step, 2);
-					line = setLineStringId(line, `${stringIdBase}-S${num}_`);
-				} else if (trimmed.search(/\<window[\s|\>].*gamepad=\"/gm) > -1) {
-					line = setLineStringId(line, `${stringIdBase}-S${num}G`);
-				} else if (trimmed.startsWith('<window')) {
-					line = setLineStringId(line, `${stringIdBase}-S${num}I`);
-				}
-
-				ret.push(line);
-			}
-
-			ret.push('');
-			const newText = ret.join('\n');
-
-			// Apply changes to document
-			editor.edit((editBuilder) => {
-				editBuilder.replace(new Range(0, 0, document.lineCount, 5000), newText);
-			});
-			window.showInformationMessage('StringIds replaced');
-		}
+	if (!editor) {
+		return;
 	}
+
+	const document = editor.document;
+	if (document.languageId !== 'xml') {
+		window.showErrorMessage("This isn't an XML file");
+		return;
+	}
+
+	const filename = getFilenameFromPath(document.uri.path).toLocaleLowerCase();
+	const stringIdBase = await getStringIdBase(filename);
+
+	let text = document.getText();
+
+	// Go through text
+	const splitText = text.trim().split('\n');
+	const ret = [];
+
+	/**
+	 * Sets the provided value into an existing stringId attribute and returns the result
+	 * @param line Source line
+	 * @param value New stringId value
+	 */
+	const setLineStringId = (line: string, value: string) =>
+		line.replace(/stringId=".*?"/, `stringId="${value}"`);
+
+	let step = 0;
+	let num = '';
+	for (let lineNumber in splitText) {
+		let line = splitText[lineNumber];
+		let trimmed = line.trim();
+
+		if (trimmed.startsWith('<name ')) {
+			line = setLineStringId(line, `${stringIdBase}-TITL`);
+		} else if (trimmed.startsWith('<description ')) {
+			if (trimmed.search('type="short"') !== -1) {
+				line = setLineStringId(line, `${stringIdBase}-DESS`);
+			} else if (trimmed.search('type="long"') !== -1) {
+				line = setLineStringId(line, `${stringIdBase}-DESL`);
+			}
+		} else if (trimmed.startsWith('<condition ')) {
+			step++;
+			num = padNumber(step, 2);
+			line = setLineStringId(line, `${stringIdBase}-S${num}_`);
+		} else if (trimmed.search(/\<window[\s|\>].*gamepad=\"/gm) > -1) {
+			line = setLineStringId(line, `${stringIdBase}-S${num}G`);
+		} else if (trimmed.startsWith('<window')) {
+			line = setLineStringId(line, `${stringIdBase}-S${num}I`);
+		}
+
+		ret.push(line);
+	}
+
+	ret.push('');
+	const newText = ret.join('\n');
+
+	// Apply changes to document
+	editor.edit((editBuilder) => {
+		editBuilder.replace(new Range(0, 0, document.lineCount, 5000), newText);
+	});
+	window.showInformationMessage('StringIds replaced');
 }
 
 /**
@@ -109,27 +112,26 @@ async function getStringIdBase(filename: string) {
 			}
 
 			let blocks = text.split('-');
-			for (let block of blocks) {
+			for (const index in blocks) {
+				const block = blocks[index];
 				let test = block.match(regex);
-				let msg = 'The stringId needs to be in blocks of 4 characters (AAAA-AAAA-...).';
+
+				const msgEnd = `in block ${
+					Number(index) + 1
+				} ("${block}"). The stringId needs to be in blocks of 4 characters each (AAAA-AAAA-...).`;
 				if (!test) {
-					msg += ` Invalid character in "${block}"`;
-					return msg;
+					return `Invalid character ${msgEnd}`;
 				}
 				if (test.length > 1) {
-					msg += ` Invalid separator character in "${block}"`;
-					return msg;
+					return `Invalid separator character ${msgEnd}`;
 				}
 				if (test[0].length < 4) {
-					msg += ` Less than 4 characters in "${block}"`;
-					return msg;
+					return `Less than 4 characters ${msgEnd}`;
 				}
 				if (test[0].length > 4) {
-					msg += ` More than 4 characters in "${block}"`;
-					return msg;
+					return `More than 4 characters ${msgEnd}`;
 				}
 			}
-
 			return null;
 		},
 	});

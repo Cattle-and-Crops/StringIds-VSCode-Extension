@@ -15,8 +15,7 @@ export async function getStringContents() {
 	}
 
 	const document = editor.document;
-	const filename = getFilenameFromPath(document.uri.path).toLocaleLowerCase();
-	if ('file' !== document.uri.scheme || !filename.endsWith('.xml')) {
+	if ('file' !== document.uri.scheme) {
 		return;
 	}
 
