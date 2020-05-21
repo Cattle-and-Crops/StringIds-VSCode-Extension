@@ -1,5 +1,4 @@
 import { env, Range, Uri, window, workspace, WorkspaceEdit } from 'vscode';
-import { getFilenameFromPath } from '../helpers/helpers';
 import * as path from 'path';
 
 let parser = require('fast-xml-parser');
@@ -9,6 +8,8 @@ let parser = require('fast-xml-parser');
  * empty file in column format. Can then be pasted in the CNC translations table.
  */
 export async function getStringContents() {
+	const config = workspace.getConfiguration('cnc-mission-stringids', undefined);
+
 	const editor = window.activeTextEditor;
 	if (!editor) {
 		return;
@@ -82,10 +83,14 @@ export async function getStringContents() {
 	const outputText = createOutputText(outputData, tabSeparator);
 
 	// Paste in new document
-	pasteTextInNewDocument(outputText);
+	if (config && config.getStringContent.pasteStringIdsInNewFile) {
+		pasteTextInNewDocument(outputText);
+	}
 
 	// Copy to clipboard
-	writeTextToClipboard(outputText, 'StringIds and texts copied to clipboard');
+	if (config && config.getStringContent.copyStringIdsToClipboard) {
+		writeTextToClipboard(outputText, 'StringIds and texts copied to clipboard');
+	}
 }
 
 /**

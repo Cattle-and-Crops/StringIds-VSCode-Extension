@@ -104,7 +104,7 @@ async function getStringIdBase(filename: string) {
 	let result = await window.showInputBox({
 		value: proposal ? proposal : undefined,
 		valueSelection: undefined,
-		placeHolder: 'Enter a stringId base',
+		placeHolder: 'ABCD-1234-SE_I',
 		prompt: 'Enter a stringId base',
 		validateInput: (text) => {
 			if (text.length === 0) {

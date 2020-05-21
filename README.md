@@ -12,12 +12,19 @@ Requires VS Code v1.45.0 or higher.
 
 ## Release Notes
 
+### 0.0.4
+* New function: **Get String Contents**
+  Gathers all stringIds and correcponding texts from a mission file and optionally copies them for further usage in the CNC translations table
+  * Config options:
+    * Copy stringIds to clipboard [`boolean`, default: `true`]
+    * Paste stringIds in new file [`boolean`, default: `true`]
+* Support for multitple windows (gamepad windows) in **Create Tutorial StringIds**
+* Both functions added to editor context menu in XML files
+* Extension logo
+
 ### 0.0.3
 
 * stringId base can be customized in an input box
-* New function: **Get String Contents**
-  Gathers all stringIds and correcponding texts from a mission file and copies them for further usage in the CNC translations table
-* Support for multitple windows (gamepad windows) in **Create Tutorial StringIds**
 
 ### 0.0.2
 

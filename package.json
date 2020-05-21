@@ -2,7 +2,7 @@
 	"name": "cnc-mission-stringids",
 	"displayName": "Cattle and Crops Mission StringIds",
 	"description": "Sets new stringIds per condition",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"repository": {
 		"type": "git",
 		"url": "https://gitlab.com/cattle-and-crops/tutorial-stringids-vscode-extension.git"
@@ -48,6 +48,24 @@
 					"when": "resourceExtname == .xml || editorLangId == xml"
 				}
 			]
+		},
+		"configuration": {
+			"type": "object",
+			"title": "Cattle and Crops",
+			"properties": {
+				"cnc-mission-stringids.getStringContent.copyStringIdsToClipboard": {
+					"type": "boolean",
+					"default": true,
+					"markdownDescription": "Defines if the `stringIds` and text should be copied to the clipboard when reading them from the `.xml` file",
+					"scope": "window"
+				},
+				"cnc-mission-stringids.getStringContent.pasteStringIdsInNewFile": {
+					"type": "boolean",
+					"default": true,
+					"markdownDescription": "Defines if the `stringIds` and text should be pasted to a new empty file",
+					"scope": "window"
+				}
+			}
 		}
 	},
 	"scripts": {
