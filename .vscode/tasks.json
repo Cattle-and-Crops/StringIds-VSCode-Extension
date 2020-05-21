@@ -11,6 +11,16 @@
 			"presentation": {
 				"reveal": "never"
 			},
+			"group": "build",
+			"label": "npm: watch",
+			"detail": "tsc -watch -p ./"
+		},
+		{
+			"type": "npm",
+			"script": "pack",
+			"problemMatcher": [],
+			"label": "npm: pack",
+			"detail": "vsce package",
 			"group": {
 				"kind": "build",
 				"isDefault": true

@@ -1,4 +1,4 @@
-import { window, Range } from 'vscode';
+import { Range, window } from 'vscode';
 import { getFilenameFromPath, padNumber } from '../helpers/helpers';
 
 /**
@@ -20,32 +20,37 @@ export async function createTutorialStringIds() {
 			// Go through text
 			const splitText = text.trim().split('\n');
 			const ret = [];
-			let step = 0;
-			let stringId = '';
-			let num = '';
 
+			/**
+			 * Sets the provided value into an existing stringId attribute and returns the result
+			 * @param line Source line
+			 * @param value New stringId value
+			 */
+			const setLineStringId = (line: string, value: string) =>
+				line.replace(/stringId=".*?"/, `stringId="${value}"`);
+
+			let step = 0;
+			let num = '';
 			for (let lineNumber in splitText) {
 				let line = splitText[lineNumber];
 				let trimmed = line.trim();
 
 				if (trimmed.startsWith('<name ')) {
-					stringId = `${stringIdBase}-TITL`;
-					line = line.replace(/stringId=".*?"/, `stringId="${stringId}"`);
+					line = setLineStringId(line, `${stringIdBase}-TITL`);
 				} else if (trimmed.startsWith('<description ')) {
 					if (trimmed.search('type="short"') !== -1) {
-						stringId = `${stringIdBase}-DESS`;
+						line = setLineStringId(line, `${stringIdBase}-DESS`);
 					} else if (trimmed.search('type="long"') !== -1) {
-						stringId = `${stringIdBase}-DESL`;
+						line = setLineStringId(line, `${stringIdBase}-DESL`);
 					}
-					line = line.replace(/stringId=".*?"/, `stringId="${stringId}"`);
 				} else if (trimmed.startsWith('<condition ')) {
 					step++;
 					num = padNumber(step, 2);
-					stringId = `${stringIdBase}-S${num}_`;
-					line = line.replace(/stringId=".*?"/, `stringId="${stringId}"`);
+					line = setLineStringId(line, `${stringIdBase}-S${num}_`);
+				} else if (trimmed.search(/\<window[\s|\>].*gamepad=\"/gm) > -1) {
+					line = setLineStringId(line, `${stringIdBase}-S${num}G`);
 				} else if (trimmed.startsWith('<window')) {
-					stringId = `${stringIdBase}-S${num}I`;
-					line = line.replace(/stringId=".*?"/, `stringId="${stringId}"`);
+					line = setLineStringId(line, `${stringIdBase}-S${num}I`);
 				}
 
 				ret.push(line);

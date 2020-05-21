@@ -8,6 +8,7 @@
 		"url": "https://gitlab.com/cattle-and-crops/tutorial-stringids-vscode-extension.git"
 	},
 	"publisher": "JakobTischler",
+	"icon": "images/icon.png",
 	"engines": {
 		"vscode": "^1.45.0"
 	},

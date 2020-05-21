@@ -1,4 +1,4 @@
-import { window, Uri, workspace, WorkspaceEdit, Range, env } from 'vscode';
+import { env, Range, Uri, window, workspace, WorkspaceEdit } from 'vscode';
 import { getFilenameFromPath } from '../helpers/helpers';
 import * as path from 'path';
 
@@ -123,7 +123,7 @@ function getOutputData(parsedData: any) {
 		// Mission description
 		if (m.description) {
 			if (Array.isArray(m.description)) {
-				for (let d of m.description) {
+				for (const d of m.description) {
 					if (d.attr && d.attr['@_stringId'] && d['#text']) {
 						addOutputEntry(d.attr['@_stringId'], d['#text']);
 					}
@@ -139,15 +139,23 @@ function getOutputData(parsedData: any) {
 
 		// Conditions
 		if (m.stop && m.stop.conditions && m.stop.conditions.condition) {
-			for (let c of m.stop.conditions.condition) {
+			for (const c of m.stop.conditions.condition) {
 				// Condition
 				if (c.attr && c.attr['@_stringId'] && c.attr['@_description']) {
 					addOutputEntry(c.attr['@_stringId'], c.attr['@_description']);
 				}
 
 				// Condition window
-				if (c.window && c.window.attr && c.window.attr['@_stringId'] && c.window['#text']) {
-					addOutputEntry(c.window.attr['@_stringId'], c.window['#text']);
+				if (c.window) {
+					if (Array.isArray(c.window)) {
+						for (const w of c.window) {
+							if (w.attr && w.attr['@_stringId'] && w['#text']) {
+								addOutputEntry(w.attr['@_stringId'], w['#text']);
+							}
+						}
+					} else if (c.window.attr && c.window.attr['@_stringId'] && c.window['#text']) {
+						addOutputEntry(c.window.attr['@_stringId'], c.window['#text']);
+					}
 				}
 			}
 		}
