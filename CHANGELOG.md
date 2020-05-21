@@ -6,7 +6,7 @@
   * Config options:
     * Copy stringIds to clipboard [`boolean`]
     * Paste stringIds in new file [`boolean`]
-* Support for multitple windows (gamepad windows) in **Create Tutorial StringIds**
+* Support for multiple windows (gamepad windows) in **Create Tutorial StringIds**
 * Both functions added to editor context menu in XML files
 * Extension logo
 
