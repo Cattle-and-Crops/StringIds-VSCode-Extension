@@ -23,6 +23,10 @@ Requires VS Code v1.45.0 or higher.
 
 ## Release Notes
 
+### 0.0.5
+* New function: **Delete StringIds**
+  Removes the `stringId` attribute values
+
 ### 0.0.4
 * New function: **Get String Contents**
   Gathers all stringIds and correcponding texts from a mission file and optionally copies them for further usage in the CNC translations table

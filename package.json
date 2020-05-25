@@ -2,7 +2,7 @@
 	"name": "cnc-mission-stringids",
 	"displayName": "Cattle and Crops Mission StringIds",
 	"description": "Sets new stringIds per condition",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"repository": {
 		"type": "git",
 		"url": "https://gitlab.com/cattle-and-crops/tutorial-stringids-vscode-extension.git"
@@ -17,7 +17,8 @@
 	],
 	"activationEvents": [
 		"onCommand:cnc-mission-stringids.createTutorialStringIds",
-		"onCommand:cnc-mission-stringids.getStringContents"
+		"onCommand:cnc-mission-stringids.getStringContents",
+		"onCommand:cnc-mission-stringids.deleteStringIds"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -33,6 +34,12 @@
 				"title": "Get String Contents",
 				"category": "Cattle and Crops",
 				"when": "resourceExtname == .xml || editorLangId == xml"
+			},
+			{
+				"command": "cnc-mission-stringids.deleteStringIds",
+				"title": "Delete String Contents",
+				"category": "Cattle and Crops",
+				"when": "resourceExtname == .xml || editorLangId == xml"
 			}
 		],
 		"menus": {
@@ -44,6 +51,11 @@
 				},
 				{
 					"command": "cnc-mission-stringids.getStringContents",
+					"group": "Cattle and Crops",
+					"when": "resourceExtname == .xml || editorLangId == xml"
+				},
+				{
+					"command": "cnc-mission-stringids.deleteStringIds",
 					"group": "Cattle and Crops",
 					"when": "resourceExtname == .xml || editorLangId == xml"
 				}

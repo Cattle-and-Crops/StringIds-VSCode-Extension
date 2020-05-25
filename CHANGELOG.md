@@ -1,5 +1,9 @@
 # Change Log
 
+### 0.0.5
+* New function: **Delete StringIds**
+  Removes the `stringId` attribute values
+
 ### 0.0.4
 * New function: **Get String Contents**
   Gathers all stringIds and correcponding texts from a mission file and optionally copies them for further usage in the CNC translations table
