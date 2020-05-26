@@ -1,5 +1,6 @@
 import { env, Range, Uri, window, workspace, WorkspaceEdit } from 'vscode';
 import * as path from 'path';
+import { customEscape } from '../helpers/helpers';
 
 let parser = require('fast-xml-parser');
 
@@ -113,6 +114,25 @@ function getOutputData(parsedData: any) {
 	const output: stringIdEntry[] = [];
 
 	/**
+	 * Applies a function to the obj, which can be a parameter directly, or an array of parameters to the function
+	 * @param obj The object or array of objects to apply the function to
+	 * @param callbackFunction The function to be applied to the obj
+	 */
+	const youOrAllOfYou = (obj: any | any[], callbackFunction: Function) => {
+		try {
+			if (Array.isArray(obj)) {
+				for (const entry of obj) {
+					callbackFunction(entry);
+				}
+			} else {
+				callbackFunction(obj);
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+	/**
 	 * Checks if the object exists, has all necessary attributes and adds the stringId and text to the output array
 	 * @param object The XML element's parsed object
 	 * @param hasDescriptionAttr Optionally defines if the `description` attribute should be used instead of the inner text
@@ -122,7 +142,8 @@ function getOutputData(parsedData: any) {
 			const stringId = object.attr['@_stringId'];
 			const text = hasDescriptionAttr ? object.attr['@_description'] : object['#text'];
 			if (stringId && text) {
-				return output.push({ [stringId]: text }) > 0;
+				let escapedText = customEscape(text);
+				return output.push({ [stringId]: escapedText }) > 0;
 			}
 		}
 		return false;
@@ -135,32 +156,40 @@ function getOutputData(parsedData: any) {
 
 		// Mission description
 		if (m.description) {
-			if (Array.isArray(m.description)) {
-				for (const description of m.description) {
-					addOutputEntry(description);
-				}
-			} else {
-				addOutputEntry(m.description);
-			}
+			youOrAllOfYou(m.description, addOutputEntry);
 		}
 
 		// Conditions
 		if (m.stop && m.stop.conditions && m.stop.conditions.condition) {
-			for (const condition of m.stop.conditions.condition) {
+			youOrAllOfYou(m.stop.conditions.condition, (condition: any) => {
 				// Condition
 				addOutputEntry(condition, true);
 
-				// Condition window
+				// Condition > window
 				if (condition.window) {
-					if (Array.isArray(condition.window)) {
-						for (const window of condition.window) {
-							addOutputEntry(window);
+					youOrAllOfYou(condition.window, (window: any) => {
+						addOutputEntry(window);
+
+						// Condition > window > page
+						if (window.page) {
+							youOrAllOfYou(window.page, (page: any) => {
+								// Condition > window > page > element
+								if (page.element) {
+									youOrAllOfYou(page.element, (element: any) => {
+										if (
+											element &&
+											element.attr &&
+											'text' === element.attr['@_type']
+										) {
+											addOutputEntry(element);
+										}
+									});
+								}
+							});
 						}
-					} else {
-						addOutputEntry(condition.window);
-					}
+					});
 				}
-			}
+			});
 		}
 	}
 
@@ -192,7 +221,7 @@ function pasteTextInNewDocument(text: string) {
 	workspace.openTextDocument(newFile).then(async (document) => {
 		const edit = new WorkspaceEdit();
 		// edit.insert(newFile, new Position(0, 0), text);
-		edit.replace(newFile, new Range(0, 0, 999999, 999999), text);
+		edit.replace(newFile, new Range(0, 0, document.lineCount, 999999), unescape(text));
 
 		const success = await workspace.applyEdit(edit);
 		if (success) {

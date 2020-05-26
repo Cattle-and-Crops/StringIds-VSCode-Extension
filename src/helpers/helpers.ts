@@ -34,9 +34,9 @@ export function getFilenameFromPath(path: string): string {
  */
 export function capitalize(text: string, all: boolean = false): string {
 	if (all) {
-		return text.replace(/\w\S*/g, word => capitalize(word));
+		return text.replace(/\w\S*/g, (word) => capitalize(word));
 	}
-	return text.replace(/^\w/, c => c.toUpperCase());
+	return text.replace(/^\w/, (c) => c.toUpperCase());
 }
 
 const arrayMoveMutate = (array: any[], from: number, to: number) => {
@@ -55,4 +55,31 @@ export function arrayMove(array: any[], from: number, to: number): any[] {
 	array = array.slice();
 	arrayMoveMutate(array, from, to);
 	return array;
+}
+
+/**
+ * Escapes quotes, newLines and tab characters
+ * @param text The string containing the text
+ * @param quotes If `true`, unescaped quotes (" -> \\") and apostrophes (' -> \\') will be escaped. *Default:* `true`
+ * @param newLines If `true`, new lines (-> \\n) and tabs (-> \\t) will be escaped. *Default:* `true`
+ * @returns The escaped string
+ */
+export function customEscape(text: string, quotes: boolean = true, newLines: boolean = true) {
+	// Escape " and ', but skip already escaped \" and \' with a negative lookbehind
+	// @source: https://stackoverflow.com/a/25713682
+	if (quotes) {
+		text = text.replace(/(?<!\\)("|')/gm, '\\$1');
+	}
+
+	// Escape line breaks and tabs
+	if (newLines) {
+		text = text
+			.replace(/(\r\n)/g, '\\n')
+			.replace(/(\n\r)/g, '\\n')
+			.replace(/(\n)/g, '\\n')
+			.replace(/(\r)/g, '\\r')
+			.replace(/(\t)/g, '\\t');
+	}
+
+	return text;
 }
