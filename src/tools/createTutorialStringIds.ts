@@ -41,21 +41,21 @@ export async function createTutorialStringIds() {
 		let trimmed = line.trim();
 
 		if (trimmed.startsWith('<name ')) {
-			line = setLineStringId(line, `${stringIdBase}-TITL`);
+			line = setLineStringId(line, `${stringIdBase}TITL`);
 		} else if (trimmed.startsWith('<description ')) {
 			if (trimmed.search('type="short"') !== -1) {
-				line = setLineStringId(line, `${stringIdBase}-DESS`);
+				line = setLineStringId(line, `${stringIdBase}DESS`);
 			} else if (trimmed.search('type="long"') !== -1) {
-				line = setLineStringId(line, `${stringIdBase}-DESL`);
+				line = setLineStringId(line, `${stringIdBase}DESL`);
 			}
 		} else if (trimmed.startsWith('<condition ')) {
 			step++;
 			num = padNumber(step, 2);
-			line = setLineStringId(line, `${stringIdBase}-S${num}_`);
+			line = setLineStringId(line, `${stringIdBase}S${num}_`);
 		} else if (trimmed.search(/\<window[\s|\>].*gamepad=\"/gm) > -1) {
-			line = setLineStringId(line, `${stringIdBase}-S${num}G`);
+			line = setLineStringId(line, `${stringIdBase}S${num}G`);
 		} else if (trimmed.startsWith('<window')) {
-			line = setLineStringId(line, `${stringIdBase}-S${num}I`);
+			line = setLineStringId(line, `${stringIdBase}S${num}I`);
 		}
 
 		ret.push(line);
@@ -136,5 +136,10 @@ async function getStringIdBase(filename: string) {
 		},
 	});
 
-	return result;
+	if (result === undefined) {
+		console.log('StringId Base input box cancelled');
+		return '';
+	}
+
+	return `${result}-`;
 }

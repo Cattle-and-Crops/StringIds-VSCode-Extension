@@ -1,9 +1,10 @@
 # cnc-mission-stringids README
 
-This extension has two functions
+This extension has three functions
 
-1. recalculate stringIds for tutorial missions. Each `condition` gets a new step number (`...-S00_`), and each `window` gets the same ID with a trailing "I" (`...-S00I`). The stringId base (full path before the final stringId part) can be calculated from the filename, or a custom one can be defined.
-2. Gather all defined stringIds and corresponding texts in a mission file and copy them to the clipboard for further usage in the CNC translations table
+1. **Create Tutorial StringIds**: recalculate stringIds for tutorial missions. Each `condition` gets a new step number (`...-S00_`), and each `window` gets the same ID with a trailing "I" (`...-S00I`). The stringId base (full path before the final stringId part) can be calculated from the filename, or a custom one can be defined.
+2. **Get String Contents**: Gather all defined stringIds and corresponding texts in a mission file and copy them to the clipboard for further usage in the CNC translations table
+3. Clear all `stringId` attribute values with the **Delete StringIds** function
 
 ---
 
