@@ -95,9 +95,9 @@ export async function createTutorialStringIds() {
 }
 
 /**
- * Takes a filename with the format of `tutorial_0_0_0.xml` and returns the mission's stringId base ("TUTO-CA00-CA00-MI00").
+ * Takes a filename with the format of `tutorial_1_2_3.xml` and returns the mission's stringId base ("TUTO-0102-T003").
  * @param {string} filename - The mission's filename including suffix
- * @returns {string} The stringId base in the format of TUTO-CA00-CA00-MI00
+ * @returns {string} The stringId base in the format of TUTO-0102-T003
  */
 const getStringIdBaseFromFilename = (filename: string): string | null => {
 	let base = 'BASE';
