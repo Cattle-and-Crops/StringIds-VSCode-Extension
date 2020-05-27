@@ -34,28 +34,51 @@ export async function createTutorialStringIds() {
 	const setLineStringId = (line: string, value: string) =>
 		line.replace(/stringId=".*?"/, `stringId="${value}"`);
 
-	let step = 0;
-	let num = '';
+	let windowType = null;
+	let conditionNum = 0;
+	let conditionNumPadded = '';
+	let elementNum = 0;
 	for (let lineNumber in splitText) {
 		let line = splitText[lineNumber];
 		let trimmed = line.trim();
 
+		// name -> TITL
 		if (trimmed.startsWith('<name ')) {
 			line = setLineStringId(line, `${stringIdBase}TITL`);
+
+			// description -> DESS/DESL
 		} else if (trimmed.startsWith('<description ')) {
 			if (trimmed.search('type="short"') !== -1) {
 				line = setLineStringId(line, `${stringIdBase}DESS`);
 			} else if (trimmed.search('type="long"') !== -1) {
 				line = setLineStringId(line, `${stringIdBase}DESL`);
 			}
+
+			// condition -> S000
 		} else if (trimmed.startsWith('<condition ')) {
-			step++;
-			num = padNumber(step, 2);
-			line = setLineStringId(line, `${stringIdBase}S${num}_`);
+			conditionNum++;
+			conditionNumPadded = padNumber(conditionNum, 3);
+			line = setLineStringId(line, `${stringIdBase}S${conditionNumPadded}`);
+
+			// window gamepad -> S000-GPAD
 		} else if (trimmed.search(/\<window[\s|\>].*gamepad=\"/gm) > -1) {
-			line = setLineStringId(line, `${stringIdBase}S${num}G`);
+			line = setLineStringId(line, `${stringIdBase}S${conditionNumPadded}-GPAD`);
+			elementNum = 0;
+			windowType = 'G';
+
+			// window -> S000-INFO
 		} else if (trimmed.startsWith('<window')) {
-			line = setLineStringId(line, `${stringIdBase}S${num}I`);
+			line = setLineStringId(line, `${stringIdBase}S${conditionNumPadded}-INFO`);
+			elementNum = 0;
+			windowType = 'I';
+
+			// window page element -> S000-I000/S000-G000
+		} else if (trimmed.search(/\<element[\s|\>].*type=\"text\"/gm) > -1) {
+			elementNum++;
+			line = setLineStringId(
+				line,
+				`${stringIdBase}S${conditionNumPadded}-${windowType + padNumber(elementNum, 3)}`
+			);
 		}
 
 		ret.push(line);
@@ -93,9 +116,11 @@ const getStringIdBaseFromFilename = (filename: string): string | null => {
 	if (base === 'TUTO') {
 		let matches = filename.match(/(\d+).*?(\d+).*?(\d+)/);
 		if (matches && matches.length === 4) {
-			ret.push('-CA' + padNumber(Number(matches[1]), 2));
-			ret.push('-CA' + padNumber(Number(matches[2]), 2));
-			ret.push('-TU' + padNumber(Number(matches[3]), 2));
+			// TUTO-0101-T001
+			ret.push('-');
+			ret.push(padNumber(Number(matches[1]), 2));
+			ret.push(padNumber(Number(matches[2]), 2));
+			ret.push('-T' + padNumber(Number(matches[3]), 3));
 
 			return ret.join('');
 		}
