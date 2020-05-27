@@ -76,16 +76,36 @@ export async function createTutorialStringIds() {
  * @param {string} filename - The mission's filename including suffix
  * @returns {string} The stringId base in the format of TUTO-CA00-CA00-MI00
  */
-const getStringIdBaseFromFilename = (filename: string) => {
-	let stringIdBaseAr = [];
-	let pathBase = filename.match(/tutorial_(\d+)_(\d+)_(\d+).xml/);
-	if (pathBase && pathBase.length === 4) {
-		stringIdBaseAr.push('TUTO');
-		stringIdBaseAr.push('-CA' + padNumber(Number(pathBase[1]), 2));
-		stringIdBaseAr.push('-CA' + padNumber(Number(pathBase[2]), 2));
-		stringIdBaseAr.push('-TU' + padNumber(Number(pathBase[3]), 2));
+const getStringIdBaseFromFilename = (filename: string): string | null => {
+	let base = 'BASE';
+	for (const type of [
+		['campaign', 'CAMP'],
+		['mission', 'MISS'],
+		['tutorial', 'TUTO'],
+	]) {
+		if (filename.toLowerCase().search(type[0]) > -1) {
+			base = type[1];
+			break;
+		}
+	}
+	let ret = [base];
 
-		return stringIdBaseAr.join('');
+	if (base === 'TUTO') {
+		let matches = filename.match(/(\d+).*?(\d+).*?(\d+)/);
+		if (matches && matches.length === 4) {
+			ret.push('-CA' + padNumber(Number(matches[1]), 2));
+			ret.push('-CA' + padNumber(Number(matches[2]), 2));
+			ret.push('-TU' + padNumber(Number(matches[3]), 2));
+
+			return ret.join('');
+		}
+	} else if (base === 'MISS' || base === 'CAMP') {
+		let matches = filename.match(/(\d+)/g);
+		if (matches && matches[1]) {
+			ret.push('-MI' + padNumber(Number(matches[1]), 2));
+
+			return ret.join('');
+		}
 	}
 
 	return null;
@@ -96,7 +116,7 @@ const getStringIdBaseFromFilename = (filename: string) => {
  * @param {string} filename the file's name
  * @returns {Promise<string>} The proposed or entered `stringId` base
  */
-async function getStringIdBase(filename: string) {
+async function getStringIdBase(filename: string): Promise<string> {
 	const proposal = getStringIdBaseFromFilename(filename);
 	const regex = /^([A-Za-z0-9_])+$/gm;
 
