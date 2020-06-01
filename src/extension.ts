@@ -1,13 +1,14 @@
 import * as vscode from 'vscode';
 
-import { createTutorialStringIds } from './tools/createTutorialStringIds';
-import { getStringContents } from './tools/getStringContent';
+import { createStringIds } from './tools/createStringIds';
 import { deleteStringIds } from './tools/deleteStringIds';
+import { getStringContents } from './tools/getStringContents';
+import { pasteStringsFromSheet } from './tools/pasteStringsFromSheet';
 
 export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
-		vscode.commands.registerCommand('cnc-mission-stringids.createTutorialStringIds', () => {
-			createTutorialStringIds();
+		vscode.commands.registerCommand('cnc-mission-stringids.createStringIds', () => {
+			createStringIds();
 		})
 	);
 	context.subscriptions.push(
@@ -18,6 +19,11 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.commands.registerCommand('cnc-mission-stringids.deleteStringIds', () => {
 			deleteStringIds();
+		})
+	);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('cnc-mission-stringids.pasteStringsFromSheet', () => {
+			pasteStringsFromSheet();
 		})
 	);
 }

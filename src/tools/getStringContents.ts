@@ -1,6 +1,5 @@
-import { env, Range, Uri, window, workspace, WorkspaceEdit } from 'vscode';
-import * as path from 'path';
-import { customEscape } from '../helpers/helpers';
+import { window, workspace } from 'vscode';
+import { customEscape, pasteTextInNewDocument, writeTextToClipboard } from '../helpers/helpers';
 
 let parser = require('fast-xml-parser');
 
@@ -85,7 +84,7 @@ export async function getStringContents() {
 
 	// Paste in new document
 	if (config && config.getStringContent.pasteStringIdsInNewFile) {
-		pasteTextInNewDocument(outputText);
+		pasteTextInNewDocument(outputText, 'stringIds.tsv');
 	}
 
 	// Copy to clipboard
@@ -209,38 +208,4 @@ function createOutputText(data: any[], separator: string) {
 	}
 	let text = texts.join('\n');
 	return text;
-}
-
-/**
- * Creates a new, empty, unsaved document and pastes the provided text
- * @param text The content to be pasted
- * @source [StackOverflow](https://stackoverflow.com/questions/41068197/vscode-create-unsaved-file-and-add-content)
- */
-function pasteTextInNewDocument(text: string) {
-	const newFile = Uri.parse('untitled:' + path.join('stringIds.tsv'));
-	workspace.openTextDocument(newFile).then(async (document) => {
-		const edit = new WorkspaceEdit();
-		// edit.insert(newFile, new Position(0, 0), text);
-		edit.replace(newFile, new Range(0, 0, document.lineCount, 999999), unescape(text));
-
-		const success = await workspace.applyEdit(edit);
-		if (success) {
-			window.showTextDocument(document);
-		} else {
-			window.showErrorMessage("Document couldn't be created correctly");
-		}
-	});
-}
-
-/**
- * Writes the provided text to the user's clipboard
- * @param text The text to be written to the clipboard
- * @param message The success message to be shown
- */
-function writeTextToClipboard(text: string, message?: string) {
-	env.clipboard.writeText(text).then(() => {
-		if (message && message.length > 0) {
-			window.showInformationMessage(message);
-		}
-	});
 }

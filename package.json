@@ -16,16 +16,23 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:cnc-mission-stringids.createTutorialStringIds",
+		"onCommand:cnc-mission-stringids.createStringIds",
+		"onCommand:cnc-mission-stringids.deleteStringIds",
 		"onCommand:cnc-mission-stringids.getStringContents",
-		"onCommand:cnc-mission-stringids.deleteStringIds"
+		"onCommand:cnc-mission-stringids.pasteStringsFromSheet"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "cnc-mission-stringids.createTutorialStringIds",
+				"command": "cnc-mission-stringids.createStringIds",
 				"title": "Create Tutorial StringIds",
+				"category": "Cattle and Crops",
+				"when": "resourceExtname == .xml || editorLangId == xml"
+			},
+			{
+				"command": "cnc-mission-stringids.deleteStringIds",
+				"title": "Delete String Contents",
 				"category": "Cattle and Crops",
 				"when": "resourceExtname == .xml || editorLangId == xml"
 			},
@@ -36,8 +43,8 @@
 				"when": "resourceExtname == .xml || editorLangId == xml"
 			},
 			{
-				"command": "cnc-mission-stringids.deleteStringIds",
-				"title": "Delete String Contents",
+				"command": "cnc-mission-stringids.pasteStringsFromSheet",
+				"title": "Paste Strings From Sheet",
 				"category": "Cattle and Crops",
 				"when": "resourceExtname == .xml || editorLangId == xml"
 			}
@@ -45,7 +52,12 @@
 		"menus": {
 			"editor/context": [
 				{
-					"command": "cnc-mission-stringids.createTutorialStringIds",
+					"command": "cnc-mission-stringids.createStringIds",
+					"group": "Cattle and Crops",
+					"when": "resourceExtname == .xml || editorLangId == xml"
+				},
+				{
+					"command": "cnc-mission-stringids.deleteStringIds",
 					"group": "Cattle and Crops",
 					"when": "resourceExtname == .xml || editorLangId == xml"
 				},
@@ -55,7 +67,7 @@
 					"when": "resourceExtname == .xml || editorLangId == xml"
 				},
 				{
-					"command": "cnc-mission-stringids.deleteStringIds",
+					"command": "cnc-mission-stringids.pasteStringsFromSheet",
 					"group": "Cattle and Crops",
 					"when": "resourceExtname == .xml || editorLangId == xml"
 				}

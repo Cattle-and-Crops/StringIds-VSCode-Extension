@@ -5,7 +5,7 @@ import { getFilenameFromPath, padNumber } from '../helpers/helpers';
  * Creates `stringId` entries for the mission name, descriptions and all conditions and its windows.
  * Only sets them if the element already has a `stringId` attribute.
  */
-export async function createTutorialStringIds() {
+export async function createStringIds() {
 	const editor = window.activeTextEditor;
 	if (!editor) {
 		return;
