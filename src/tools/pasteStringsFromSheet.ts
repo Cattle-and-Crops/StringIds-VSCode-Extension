@@ -210,14 +210,10 @@ function reportMissingEntries(data: any, xml: string) {
 	const missingInClipboard: string[] = [];
 	const missingInXML: string[] = [];
 
-	let clipboardMaxLength = 'Clipboard'.length;
-	let xmlMaxLength = 'XML'.length;
-
 	// Search Clipboard entries in XML
 	for (const key of Object.keys(data)) {
 		if (xml.search(key) === -1) {
 			missingInXML.push(key);
-			xmlMaxLength = Math.max(xmlMaxLength, key.length);
 		}
 	}
 
@@ -230,7 +226,6 @@ function reportMissingEntries(data: any, xml: string) {
 				let stringId = match[2];
 				if (stringId && stringId.length > 0 && !data[stringId]) {
 					missingInClipboard.push(stringId);
-					clipboardMaxLength = Math.max(clipboardMaxLength, stringId.length);
 				}
 			}
 		}
@@ -245,17 +240,23 @@ function reportMissingEntries(data: any, xml: string) {
 		return;
 	}
 
-	let message = 'There are missing stringIds';
+	// Warning message
+	let message = 'There are stringIds missing in';
 	if (missingInClipboard.length > 0 && missingInXML.length > 0) {
-		message += ' both in the clipboard and the xml file';
+		message += ' both the clipboard and the xml file';
 	} else if (missingInClipboard.length > 0) {
-		message += ' in the clipboard';
+		message += ' the clipboard';
 	} else {
-		message += ' in the xml file';
+		message += ' the xml file';
 	}
 	window.showWarningMessage(message);
 
 	// Create markdown
+	let clipboardMaxLength = Math.max(
+		...['Clipboard', ...missingInClipboard].map((item) => item.length)
+	);
+	let xmlMaxLength = Math.max(...['XML', ...missingInXML].map((item) => item.length));
+
 	const output = ['# Missing StringIds', ''];
 
 	output.push(
