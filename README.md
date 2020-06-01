@@ -1,10 +1,11 @@
 # cnc-mission-stringids README
 
-This extension has three functions
+This extension has four functions
 
-1. **Create Tutorial StringIds**: recalculate stringIds for tutorial missions. Each `condition` gets a new step number (`...-S00_`), and each `window` gets the same ID with a trailing "I" (`...-S00I`). The stringId base (full path before the final stringId part) can be calculated from the filename, or a custom one can be defined.
+1. **Create Tutorial StringIds**: recalculate stringIds for tutorial missions. Each `condition` gets a new step number (`...-S000`), and each `window` gets the same ID with a trailing "-INFO", or "-I000" if using elements (`...-INFO` / `...-I000`). The stringId base (full path before the final stringId part) can be calculated from the filename, or a custom one can be defined.
 2. **Get String Contents**: Gather all defined stringIds and corresponding texts in a mission file and copy them to the clipboard for further usage in the CNC translations table
-3. Clear all `stringId` attribute values with the **Delete StringIds** function
+3. **Paste Strings from Sheet**: Parses translation data in clipboard (from translation table), matches it to the existing XML stringId data and replaces existing text, while unescaping it where possible. Also warns if there are missing stringIds in either the clipboard or the XML file.
+4. Clear all `stringId` attribute values with the **Delete StringIds** function
 
 ---
 
@@ -23,6 +24,13 @@ Requires VS Code v1.45.0 or higher.
 ---
 
 ## Release Notes
+
+### 0.0.6
+* `Get String Contents` now escapes quotes, newLines and tabs
+* `Create StringIds`: user input cancellation caught
+* Support for window/page/element
+* `Create StringIds`, `Get String Contents`: support for window/page/element
+* New function **Paste Strings from Sheet**: Parses translation data in clipboard (from translation table), matches it to the existing XML stringId data and replaces existing text, while unescaping it where possible. Also warns if there are missing stringIds in either the clipboard or the XML file.
 
 ### 0.0.5
 * New function: **Delete StringIds**

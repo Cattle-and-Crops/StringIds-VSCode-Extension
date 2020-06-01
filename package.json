@@ -1,8 +1,8 @@
 {
 	"name": "cnc-mission-stringids",
 	"displayName": "Cattle and Crops Mission StringIds",
-	"description": "Sets new stringIds per condition",
-	"version": "0.0.5",
+	"description": "Sets new or deletes stringIds per condition, pastes strings from translation table in xml, pastes stringIds and strings from xml in translation table. ",
+	"version": "0.0.6",
 	"repository": {
 		"type": "git",
 		"url": "https://gitlab.com/cattle-and-crops/tutorial-stringids-vscode-extension.git"

@@ -1,5 +1,12 @@
 # Change Log
 
+### 0.0.6
+* `Get String Contents` now escapes quotes, newLines and tabs
+* `Create StringIds`: user input cancellation caught
+* Support for window/page/element
+* `Create StringIds`, `Get String Contents`: support for window/page/element
+* New function **Paste Strings from Sheet**: Parses translation data in clipboard (from translation table), matches it to the existing XML stringId data and replaces existing text, while unescaping it where possible. Also warns if there are missing stringIds in either the clipboard or the XML file.
+
 ### 0.0.5
 * New function: **Delete StringIds**
   Removes the `stringId` attribute values
