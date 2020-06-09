@@ -32,7 +32,7 @@
 			},
 			{
 				"command": "cnc-mission-stringids.deleteStringIds",
-				"title": "Delete String Contents",
+				"title": "Delete StringIds",
 				"category": "Cattle and Crops",
 				"when": "resourceExtname == .xml || editorLangId == xml"
 			},
@@ -44,7 +44,7 @@
 			},
 			{
 				"command": "cnc-mission-stringids.pasteStringsFromSheet",
-				"title": "Paste Strings From Sheet",
+				"title": "Paste Strings from Sheet",
 				"category": "Cattle and Crops",
 				"when": "resourceExtname == .xml || editorLangId == xml"
 			}
