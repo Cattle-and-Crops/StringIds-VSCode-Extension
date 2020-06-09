@@ -15,7 +15,7 @@ export async function deleteStringIds() {
 	}
 
 	let text = document.getText();
-	text = text.replace(/stringId=".*?"/gm, 'stringId=""');
+	text = text.replace(/stringId=".*?"/gim, 'stringId=""');
 
 	// Apply changes to document
 	editor.edit((editBuilder) => {

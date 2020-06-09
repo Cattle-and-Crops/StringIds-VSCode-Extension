@@ -137,7 +137,7 @@ function createNewXmlContent(data: any, text: string) {
 	let currentOpenElement = null;
 
 	for (let line of splitText) {
-		let match = line.match(/stringId=(\"|\')(.*?)(\1)/);
+		let match = line.match(/stringId=(\"|\')(.*?)(\1)/i);
 		if (match && match[2] && data[match[2]]) {
 			// New element found, stop deleting lines
 			deleteLine = false;
@@ -218,10 +218,10 @@ function reportMissingEntries(data: any, xml: string) {
 	}
 
 	//Search XML entries in Clipboard
-	let xmlStringIds = xml.match(/stringId=(\"|\')(.*?)\1/gm);
+	let xmlStringIds = xml.match(/stringId=(\"|\')(.*?)\1/gim);
 	if (xmlStringIds) {
 		for (const entry of xmlStringIds) {
-			let match = entry.match(/stringId=(\"|\')(.*)\1/);
+			let match = entry.match(/stringId=(\"|\')(.*)\1/i);
 			if (match && Array.isArray(match)) {
 				let stringId = match[2];
 				if (stringId && stringId.length > 0 && !data[stringId]) {

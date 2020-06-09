@@ -32,7 +32,7 @@ export async function createStringIds() {
 	 * @param value New stringId value
 	 */
 	const setLineStringId = (line: string, value: string) =>
-		line.replace(/stringId=".*?"/, `stringId="${value}"`);
+		line.replace(/stringId=".*?"/i, `stringId="${value}"`);
 
 	let windowType = null;
 	let conditionNum = 0;
