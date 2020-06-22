@@ -126,16 +126,28 @@ function getOutputData(parsedData: any) {
 	/**
 	 * Checks if the object exists, has all necessary attributes and adds the stringId and text to the output array
 	 * @param object The XML element's parsed object
-	 * @param hasDescriptionAttr Optionally defines if the `description` attribute should be used instead of the inner text
+	 * @param stringIdAttribute The entry's stringId attribute name ("stringId", "titleStringId", "expandedStringId"). *Default: "stringId"*
+	 * @param stringAttribute The entry's stringId fallback attribute, if existing. Otherwise the element's text will be used
 	 */
-	const addOutputEntry = (object: any, hasDescriptionAttr?: boolean) => {
+	const addOutputEntry = (object: any, stringIdAttribute: string = 'stringId', stringAttribute?: string) => {
 		if (object && object.attr) {
-			const stringId = object.attr['@_stringId'];
-			const text = hasDescriptionAttr ? object.attr['@_description'] : object['#text'];
-			if (stringId && text) {
+			const stringId = object.attr[`@_${stringIdAttribute}`];
+			if (stringId) {
+				let text;
+				if ('titleStringId' === stringIdAttribute) {
+					text = 'TODO: CUSTOM WINDOW TITLE';
+				} else if (stringAttribute && stringAttribute.length > 0) {
+					text = object.attr[`@_${stringAttribute}`];
+				} else if (object['#text'] && object['#text'].length > 0) {
+					text = object['#text'];
+				}
+
+				if (text) {
 				let escapedText = customEscape(text);
+					// escapedText = removeMultipleTabs(text);
 				return output.push({ [stringId]: escapedText }) > 0;
 			}
+		}
 		}
 		return false;
 	};
@@ -154,12 +166,15 @@ function getOutputData(parsedData: any) {
 		if (m.stop && m.stop.conditions && m.stop.conditions.condition) {
 			youOrAllOfYou(m.stop.conditions.condition, (condition: any) => {
 				// Condition
-				addOutputEntry(condition, true);
+				addOutputEntry(condition, 'stringId', 'description');
+				addOutputEntry(condition, 'expandedStringId', 'expandedDescription');
 
 				// Condition > window
 				if (condition.window) {
 					youOrAllOfYou(condition.window, (window: any) => {
 						addOutputEntry(window);
+						// Note: titleStringId doesn't have a fallback text, so treat it as special case
+						addOutputEntry(window, 'titleStringId');
 
 						// Condition > window > page
 						if (window.page) {
@@ -167,11 +182,7 @@ function getOutputData(parsedData: any) {
 								// Condition > window > page > element
 								if (page.element) {
 									youOrAllOfYou(page.element, (element: any) => {
-										if (
-											element &&
-											element.attr &&
-											'text' === element.attr['@_type']
-										) {
+										if (element && element.attr && 'text' === element.attr['@_type']) {
 											addOutputEntry(element);
 										}
 									});
