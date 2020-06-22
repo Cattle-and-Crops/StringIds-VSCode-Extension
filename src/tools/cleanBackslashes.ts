@@ -16,13 +16,13 @@ export async function cleanBackslashes() {
 		return;
 	}
 
-	let text = document.getText();
+	const selection = editor.selection;
+	let text = document.getText(selection);
 	// let regex = /\w+=(\"|\')([^"]+[\\][^nrt\s].*?)\1/gm;
-	let regex = /\\([^nrt\s\\])/gm; // --> /$1
-	let cleanedText = text.replace(regex, '/$1');
+	let cleanedText = text.replace(/\\/gm, '/');
 
 	editor.edit((editBuilder) => {
-		editBuilder.replace(new Range(0, 0, document.lineCount, 5000), cleanedText);
+		editBuilder.replace(selection, cleanedText);
 	});
 	window.showInformationMessage('Backslashes transformed');
 }

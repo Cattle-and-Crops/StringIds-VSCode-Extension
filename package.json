@@ -56,7 +56,7 @@
 				{
 					"command": "cnc-mission-stringids.cleanBackslashes",
 					"group": "Cattle and Crops",
-					"when": "resourceExtname == .xml || editorLangId == xml"
+					"when": "editorHasSelection && editorLangId == xml"
 				},
 				{
 					"command": "cnc-mission-stringids.createStringIds",
@@ -83,7 +83,7 @@
 				{
 					"command": "cnc-mission-stringids.cleanBackslashes",
 					"group": "Cattle and Crops@5",
-					"when": "resourceExtname == .xml || editorLangId == xml"
+					"when": "editorHasSelection && editorLangId == xml"
 				},
 				{
 					"command": "cnc-mission-stringids.createStringIds",

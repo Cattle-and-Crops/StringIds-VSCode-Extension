@@ -143,11 +143,11 @@ function getOutputData(parsedData: any) {
 				}
 
 				if (text) {
-				let escapedText = customEscape(text);
+					let escapedText = customEscape(text);
 					// escapedText = removeMultipleTabs(text);
-				return output.push({ [stringId]: escapedText }) > 0;
+					return output.push({ [stringId]: escapedText }) > 0;
+				}
 			}
-		}
 		}
 		return false;
 	};
