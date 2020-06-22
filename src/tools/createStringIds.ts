@@ -33,7 +33,7 @@ export async function createStringIds() {
 	 * @param attribute The stringId attribute ("stringId", "titleStringId", "expandedStringId"). *Default: "stringId"*
 	 */
 	const setLineStringId = (line: string, value: string, attribute: string = 'stringId') =>
-		line.replace(new RegExp(`${attribute}=".*?"`, 'i'), `${attribute}="${value}"`);
+		line.replace(new RegExp(` ${attribute}=".*?"`, 'i'), ` ${attribute}="${value}"`);
 
 	let windowType = null;
 	let conditionNum = 0;
@@ -60,41 +60,26 @@ export async function createStringIds() {
 			conditionNum++;
 			conditionNumPadded = padNumber(conditionNum, 3);
 			line = setLineStringId(line, `${stringIdBase}S${conditionNumPadded}`);
-			line = setLineStringId(
-				line,
-				`${stringIdBase}S${conditionNumPadded}-EXPA`,
-				'expandedStringId'
-			);
+			line = setLineStringId(line, `${stringIdBase}S${conditionNumPadded}-EXPA`, 'expandedStringId');
 
 			// window gamepad -> S000-GPAD
 		} else if (trimmed.search(/\<window[\s|\>].*gamepad=\"/gm) > -1) {
 			line = setLineStringId(line, `${stringIdBase}S${conditionNumPadded}-GPAD`);
-			line = setLineStringId(
-				line,
-				`${stringIdBase}S${conditionNumPadded}-GTIT`,
-				'titleStringId'
-			);
+			line = setLineStringId(line, `${stringIdBase}S${conditionNumPadded}-GTIT`, 'titleStringId');
 			elementNum = 0;
 			windowType = 'G';
 
 			// window -> S000-INFO
 		} else if (trimmed.startsWith('<window')) {
 			line = setLineStringId(line, `${stringIdBase}S${conditionNumPadded}-INFO`);
-			line = setLineStringId(
-				line,
-				`${stringIdBase}S${conditionNumPadded}-ITIT`,
-				'titleStringId'
-			);
+			line = setLineStringId(line, `${stringIdBase}S${conditionNumPadded}-ITIT`, 'titleStringId');
 			elementNum = 0;
 			windowType = 'I';
 
 			// window page element -> S000-I000/S000-G000
 		} else if (trimmed.search(/\<element[\s|\>].*type=\"text\"/gm) > -1) {
 			elementNum++;
-			line = setLineStringId(
-				line,
-				`${stringIdBase}S${conditionNumPadded}-${windowType + padNumber(elementNum, 3)}`
-			);
+			line = setLineStringId(line, `${stringIdBase}S${conditionNumPadded}-${windowType + padNumber(elementNum, 3)}`);
 		}
 
 		ret.push(line);
