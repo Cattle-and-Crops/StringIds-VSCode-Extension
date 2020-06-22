@@ -30,9 +30,10 @@ export async function createStringIds() {
 	 * Sets the provided value into an existing stringId attribute and returns the result
 	 * @param line Source line
 	 * @param value New stringId value
+	 * @param attribute The stringId attribute ("stringId", "titleStringId", "expandedStringId"). *Default: "stringId"*
 	 */
-	const setLineStringId = (line: string, value: string) =>
-		line.replace(/stringId=".*?"/i, `stringId="${value}"`);
+	const setLineStringId = (line: string, value: string, attribute: string = 'stringId') =>
+		line.replace(new RegExp(`${attribute}=".*?"`, 'i'), `${attribute}="${value}"`);
 
 	let windowType = null;
 	let conditionNum = 0;
@@ -59,16 +60,31 @@ export async function createStringIds() {
 			conditionNum++;
 			conditionNumPadded = padNumber(conditionNum, 3);
 			line = setLineStringId(line, `${stringIdBase}S${conditionNumPadded}`);
+			line = setLineStringId(
+				line,
+				`${stringIdBase}S${conditionNumPadded}-EXPA`,
+				'expandedStringId'
+			);
 
 			// window gamepad -> S000-GPAD
 		} else if (trimmed.search(/\<window[\s|\>].*gamepad=\"/gm) > -1) {
 			line = setLineStringId(line, `${stringIdBase}S${conditionNumPadded}-GPAD`);
+			line = setLineStringId(
+				line,
+				`${stringIdBase}S${conditionNumPadded}-GTIT`,
+				'titleStringId'
+			);
 			elementNum = 0;
 			windowType = 'G';
 
 			// window -> S000-INFO
 		} else if (trimmed.startsWith('<window')) {
 			line = setLineStringId(line, `${stringIdBase}S${conditionNumPadded}-INFO`);
+			line = setLineStringId(
+				line,
+				`${stringIdBase}S${conditionNumPadded}-ITIT`,
+				'titleStringId'
+			);
 			elementNum = 0;
 			windowType = 'I';
 
