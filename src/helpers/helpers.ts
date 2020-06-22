@@ -1,12 +1,7 @@
 import { env, window, Uri, workspace, WorkspaceEdit, Range } from 'vscode';
 import path = require('path');
 
-export const replacePartAtPos = (
-	str: string,
-	position: number,
-	length: number,
-	newText: string
-): string => {
+export const replacePartAtPos = (str: string, position: number, length: number, newText: string): string => {
 	const before = str.substr(0, position);
 	const after = str.substr(position + length, str.length);
 	return before + newText + after;
@@ -92,6 +87,16 @@ export const customEscape = (text: string, quotes: boolean = true, newLines: boo
 };
 
 /**
+ * Replaces consecutive occurences of "\t"
+ * @param text The string containing the text
+ * @param minConsecutiveAmount The minimum amount of consecutive tab characters. Default: 2
+ */
+export const removeMultipleTabs = (text: string, minConsecutiveAmount: number = 2) => {
+	text = text.replace(new RegExp(`(\\t){${minConsecutiveAmount},}`, 'g'), '');
+	return text;
+};
+
+/**
  * Unescapes quotes, newLines and tab characters
  * @param text The string containing the text
  * @param quotes If `true`, escaped quotes (\\" -> ") and apostrophes (\\' -> ') will be unescaped. *Default:* `true`
@@ -136,7 +141,7 @@ export const pasteTextInNewDocument = (text: string, filename: string) => {
 	workspace.openTextDocument(newFile).then(async (document) => {
 		const edit = new WorkspaceEdit();
 		// edit.insert(newFile, new Position(0, 0), text);
-		edit.replace(newFile, new Range(0, 0, document.lineCount, 999999), unescape(text));
+		edit.replace(newFile, new Range(0, 0, document.lineCount, 999999), text);
 
 		const success = await workspace.applyEdit(edit);
 		if (success) {

@@ -1,5 +1,5 @@
 import { window, workspace } from 'vscode';
-import { customEscape, pasteTextInNewDocument, writeTextToClipboard } from '../helpers/helpers';
+import { customEscape, pasteTextInNewDocument, writeTextToClipboard, removeMultipleTabs } from '../helpers/helpers';
 
 let parser = require('fast-xml-parser');
 
@@ -124,10 +124,10 @@ function getOutputData(parsedData: any) {
 	};
 
 	/**
-	 * Checks if the object exists, has all necessary attributes and adds the stringId and text to the output array
+	 * Checks if the object exists, has all necessary attributes and adds the stringId and text to the output array.
 	 * @param object The XML element's parsed object
 	 * @param stringIdAttribute The entry's stringId attribute name ("stringId", "titleStringId", "expandedStringId"). *Default: "stringId"*
-	 * @param stringAttribute The entry's stringId fallback attribute, if existing. Otherwise the element's text will be used
+	 * @param stringAttribute - *(Optional)* The entry's stringId fallback attribute, if existing. If not provided, the element's text will be used.
 	 */
 	const addOutputEntry = (object: any, stringIdAttribute: string = 'stringId', stringAttribute?: string) => {
 		if (object && object.attr) {
@@ -143,8 +143,8 @@ function getOutputData(parsedData: any) {
 				}
 
 				if (text) {
-					let escapedText = customEscape(text);
-					// escapedText = removeMultipleTabs(text);
+					let escapedText = removeMultipleTabs(text);
+					escapedText = customEscape(escapedText);
 					return output.push({ [stringId]: escapedText }) > 0;
 				}
 			}
