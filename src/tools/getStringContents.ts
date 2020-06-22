@@ -34,20 +34,12 @@ export async function getStringContents() {
 
 	// Get language
 	const language = await getLanguage();
-	let tabSeparator = '\t';
-	switch (language) {
-		case 'German':
-			tabSeparator = '\t';
-			break;
-		case 'English':
-			tabSeparator = '\t\t';
-			break;
-		case 'Custom':
-			tabSeparator = '\t\t\t';
-			break;
-		default:
-			tabSeparator = '\t';
-	}
+	let columnSeparators: { [key: string]: number } = {
+		German: 1,
+		English: 2,
+		Custom: 3,
+	};
+	let columnSeparator = '\t'.repeat(language ? columnSeparators[language] : 1);
 
 	// Parse file contents as XML
 	let text = document.getText();
@@ -80,7 +72,7 @@ export async function getStringContents() {
 	const outputData = getOutputData(parsedData);
 
 	// Create output text
-	const outputText = createOutputText(outputData, tabSeparator);
+	const outputText = createOutputText(outputData, columnSeparator);
 
 	// Paste in new document
 	if (config && config.getStringContent.pasteStringIdsInNewFile) {
