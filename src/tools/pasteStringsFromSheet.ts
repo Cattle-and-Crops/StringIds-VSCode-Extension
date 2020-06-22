@@ -99,10 +99,7 @@ async function parseClipboardContent() {
 	}
 
 	// Parse
-	interface ParsedData {
-		[key: string]: string;
-	}
-	let data: ParsedData = {};
+	let data: { [key: string]: string } = {};
 
 	for (const line of content.split('\r\n')) {
 		if (line && line.length > 0) {
@@ -137,47 +134,58 @@ function createNewXmlContent(data: any, text: string) {
 	let currentOpenElement = null;
 
 	for (let line of splitText) {
-		let match = line.match(/stringId=(\"|\')(.*?)(\1)/i);
-		if (match && match[2] && data[match[2]]) {
-			// New element found, stop deleting lines
-			deleteLine = false;
-			currentOpenElement = null;
+		let match = line.match(/((?: |title|expanded)stringId)=(\"|\')(.*?)(\2)/i);
+		if (match) {
+			let stringId = match[3];
+			if (stringId && data[stringId]) {
+				// New element found, stop deleting lines
+				deleteLine = false;
+				currentOpenElement = null;
 
-			let stringId = match[2];
-			let text = data[stringId];
-			let unescapedText = customUnescape(text);
-
-			// description attribute
-			let descriptionRegex = /description=(\"|\')(.*?)(\1)/;
-			let descriptionMatch = line.match(descriptionRegex);
-			if (descriptionMatch) {
-				let quote = text.search('"') > -1 ? "'" : '"';
-				line = line.replace(
-					descriptionRegex,
-					`description=${quote}${unescapedText}${quote}`
-				);
-				ret.push(line);
-				continue;
-			}
-
-			// has text value
-			if (line.search('>') > -1) {
-				let tag = line.match(/<(\w+)/);
-				if (tag && tag[1]) {
-					let closingTag = `</${tag[1]}>`;
-					if (line.search(closingTag) > -1) {
-						// closing in same line
-						line = line.replace(/>(.*?)$/gm, `>${unescapedText}${closingTag}`);
-						ret.push(line);
-					} else {
-						// multi-line
-						line = line.replace(/>(.*?)$/gm, `>`);
-						ret.push(line);
-						ret.push(unescapedText);
-						currentOpenElement = tag[1];
-						deleteLine = true;
-					}
+				if (match[1] === 'titleStringId') {
 					continue;
+				}
+
+				let text = data[stringId];
+				let unescapedText = customUnescape(text);
+
+				// description attribute
+				let descriptionRegex;
+				let description;
+				if (match[1] === 'expandedStringId') {
+					description = 'expandedDescription';
+					descriptionRegex = /expandedDescription=(\"|\')(.*?)(\1)/;
+				} else {
+					description = ' description';
+					descriptionRegex = / description=(\"|\')(.*?)(\1)/;
+				}
+				let descriptionMatch = line.match(descriptionRegex);
+				if (descriptionMatch) {
+					let quote = text.search('"') > -1 ? "'" : '"';
+					line = line.replace(descriptionRegex, `${description}=${quote}${unescapedText}${quote}`);
+					ret.push(line);
+					continue;
+				}
+
+				// has text value
+				if (line.search('>') > -1) {
+					let tag = line.match(/<(\w+)/);
+					if (tag && tag[1]) {
+						let closingTag = `</${tag[1]}>`;
+						if (line.search(closingTag) > -1) {
+							// closing in same line
+							line = line.replace(/>(.*?)$/gm, `>${unescapedText}${closingTag}`);
+							ret.push(line);
+						} else {
+							// multi-line
+							line = line.replace(/>(.*?)$/gm, `>`);
+							ret.push(line);
+							ret.push(unescapedText);
+							currentOpenElement = tag[1];
+							deleteLine = true;
+						}
+						continue;
+					}
 				}
 			}
 		}
@@ -252,9 +260,7 @@ function reportMissingEntries(data: any, xml: string) {
 	window.showWarningMessage(message);
 
 	// Create markdown
-	let clipboardMaxLength = Math.max(
-		...['Clipboard', ...missingInClipboard].map((item) => item.length)
-	);
+	let clipboardMaxLength = Math.max(...['Clipboard', ...missingInClipboard].map((item) => item.length));
 	let xmlMaxLength = Math.max(...['XML', ...missingInXML].map((item) => item.length));
 
 	const output = ['# Missing StringIds', ''];
@@ -264,14 +270,10 @@ function reportMissingEntries(data: any, xml: string) {
 		`| ${'-'.padEnd(clipboardMaxLength, '-')} | ${'-'.padEnd(xmlMaxLength, '-')} |`
 	);
 	for (const entry of missingInClipboard) {
-		output.push(
-			`| ${entry.padEnd(clipboardMaxLength, ' ')} | ${' '.padEnd(xmlMaxLength, ' ')} |`
-		);
+		output.push(`| ${entry.padEnd(clipboardMaxLength, ' ')} | ${' '.padEnd(xmlMaxLength, ' ')} |`);
 	}
 	for (const entry of missingInXML) {
-		output.push(
-			`| ${' '.padEnd(clipboardMaxLength, ' ')} | ${entry.padEnd(xmlMaxLength, ' ')} |`
-		);
+		output.push(`| ${' '.padEnd(clipboardMaxLength, ' ')} | ${entry.padEnd(xmlMaxLength, ' ')} |`);
 	}
 
 	output.push('');
