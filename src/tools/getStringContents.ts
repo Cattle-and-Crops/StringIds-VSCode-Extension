@@ -193,11 +193,6 @@ function getOutputData(parsedData: any) {
  * @param separator Separation string between first and second data column
  */
 function createOutputText(data: any[], separator: string) {
-	let texts = [];
-	for (let entry of data) {
-		let line = Object.keys(entry)[0] + separator + Object.values(entry)[0];
-		texts.push(line);
-	}
-	let text = texts.join('\n');
-	return text;
+	let texts = data.map((entry) => Object.keys(entry)[0] + separator + Object.values(entry)[0]);
+	return texts.join('\n');
 }
