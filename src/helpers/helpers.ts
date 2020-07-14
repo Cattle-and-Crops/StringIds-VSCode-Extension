@@ -87,6 +87,25 @@ export const customEscape = (text: string, quotes: boolean = true, newLines: boo
 };
 
 /**
+ * Replaces CRLF line breaks in an `expandedDescription` attribute with escaped LFs ("\n").
+ * @param text The document's complete text
+ */
+export const escapeMultiLineAttributes = (text: string = '') => {
+	// https://regex101.com/r/cQiGu7/1
+	const match = text.match(/expandedDescription="([^"]+)"/gm);
+
+	if (match) {
+		const lineBreaks = /\r\n/gm;
+		for (const result of match) {
+			let escapedText = result.replace(lineBreaks, '\\n');
+			text = text.replace(result, escapedText);
+		}
+	}
+
+	return text;
+};
+
+/**
  * Replaces consecutive occurences of "\t"
  * @param text The string containing the text
  * @param minConsecutiveAmount The minimum amount of consecutive tab characters. Default: 2

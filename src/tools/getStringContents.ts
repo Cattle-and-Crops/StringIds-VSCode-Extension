@@ -1,5 +1,11 @@
 import { window, workspace } from 'vscode';
-import { customEscape, pasteTextInNewDocument, writeTextToClipboard, removeMultipleTabs } from '../helpers/helpers';
+import {
+	customEscape,
+	pasteTextInNewDocument,
+	writeTextToClipboard,
+	removeMultipleTabs,
+	escapeMultiLineAttributes,
+} from '../helpers/helpers';
 
 let parser = require('fast-xml-parser');
 
@@ -43,6 +49,8 @@ export async function getStringContents() {
 
 	// Parse file contents as XML
 	let text = document.getText();
+	text = escapeMultiLineAttributes(text);
+
 	let parsedData = parser.parse(text, {
 		attributeNamePrefix: '@_',
 		attrNodeName: 'attr', //default is 'false'
@@ -86,7 +94,7 @@ export async function getStringContents() {
 }
 
 /**
- * Let's the user choose one of three language options and returns it
+ * Lets the user choose one of three language options and returns it
  */
 async function getLanguage() {
 	const result = await window.showQuickPick(['German', 'English', 'Custom'], {
@@ -134,9 +142,7 @@ function getOutputData(parsedData: any) {
 			const stringId = object.attr[`@_${stringIdAttribute}`];
 			if (stringId) {
 				let text;
-				if ('titleStringId' === stringIdAttribute) {
-					text = 'TODO: CUSTOM WINDOW TITLE';
-				} else if (stringAttribute && stringAttribute.length > 0) {
+				if (stringAttribute && stringAttribute.length > 0) {
 					text = object.attr[`@_${stringAttribute}`];
 				} else if (object['#text'] && object['#text'].length > 0) {
 					text = object['#text'];
@@ -173,8 +179,7 @@ function getOutputData(parsedData: any) {
 				if (condition.window) {
 					youOrAllOfYou(condition.window, (window: any) => {
 						addOutputEntry(window);
-						// Note: titleStringId doesn't have a fallback text, so treat it as special case
-						addOutputEntry(window, 'titleStringId');
+						addOutputEntry(window, 'titleStringId', 'title');
 
 						// Condition > window > page
 						if (window.page) {
