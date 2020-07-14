@@ -38,6 +38,7 @@ export async function createStringIds() {
 	let windowType = null;
 	let conditionNum = 0;
 	let conditionNumPadded = '';
+	let currentDescriptionId = '';
 	let elementNum = 0;
 	for (let lineNumber in splitText) {
 		let line = splitText[lineNumber];
@@ -46,40 +47,51 @@ export async function createStringIds() {
 		// name -> TITL
 		if (trimmed.startsWith('<name ')) {
 			line = setLineStringId(line, `${stringIdBase}TITL`);
+		}
 
-			// description -> DESS/DESL
-		} else if (trimmed.startsWith('<description ')) {
+		// description -> DESS/DESL
+		else if (trimmed.startsWith('<description ')) {
 			if (trimmed.search('type="short"') !== -1) {
 				line = setLineStringId(line, `${stringIdBase}DESS`);
 			} else if (trimmed.search('type="long"') !== -1) {
 				line = setLineStringId(line, `${stringIdBase}DESL`);
 			}
+		}
 
-			// condition -> S000
-		} else if (trimmed.startsWith('<condition ')) {
+		// condition -> S000
+		else if (trimmed.startsWith('<condition ')) {
 			conditionNum++;
 			conditionNumPadded = padNumber(conditionNum, 3);
-			line = setLineStringId(line, `${stringIdBase}S${conditionNumPadded}`);
-			line = setLineStringId(line, `${stringIdBase}S${conditionNumPadded}-EXPA`, 'expandedStringId');
+			currentDescriptionId = `${stringIdBase}S${conditionNumPadded}`;
 
-			// window gamepad -> S000-GPAD
-		} else if (trimmed.search(/\<window[\s|\>].*gamepad=\"/gm) > -1) {
+			line = setLineStringId(line, currentDescriptionId);
+		}
+
+		// window gamepad -> S000-GPAD
+		else if (trimmed.search(/\<window[\s|\>].*gamepad=\"/gm) > -1) {
 			line = setLineStringId(line, `${stringIdBase}S${conditionNumPadded}-GPAD`);
 			line = setLineStringId(line, `${stringIdBase}S${conditionNumPadded}-GTIT`, 'titleStringId');
 			elementNum = 0;
 			windowType = 'G';
+		}
 
-			// window -> S000-INFO
-		} else if (trimmed.startsWith('<window')) {
+		// window -> S000-INFO
+		else if (trimmed.startsWith('<window')) {
 			line = setLineStringId(line, `${stringIdBase}S${conditionNumPadded}-INFO`);
 			line = setLineStringId(line, `${stringIdBase}S${conditionNumPadded}-ITIT`, 'titleStringId');
 			elementNum = 0;
 			windowType = 'I';
+		}
 
-			// window page element -> S000-I000/S000-G000
-		} else if (trimmed.search(/\<element[\s|\>].*type=\"text\"/gm) > -1) {
+		// window page element -> S000-I000/S000-G000
+		else if (trimmed.search(/\<element[\s|\>].*type=\"text\"/gm) > -1) {
 			elementNum++;
 			line = setLineStringId(line, `${stringIdBase}S${conditionNumPadded}-${windowType + padNumber(elementNum, 3)}`);
+		}
+
+		// condition expanded --> S000-EXPA
+		if (currentDescriptionId.length > 0 && trimmed.search(/expandedStringId=[\"\']/gm) > -1) {
+			line = setLineStringId(line, `${currentDescriptionId}-EXPA`, 'expandedStringId');
 		}
 
 		ret.push(line);
