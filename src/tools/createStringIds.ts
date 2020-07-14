@@ -40,9 +40,14 @@ export async function createStringIds() {
 	let conditionNumPadded = '';
 	let currentDescriptionId = '';
 	let elementNum = 0;
+	let outOfStart = false;
 	for (let lineNumber in splitText) {
 		let line = splitText[lineNumber];
 		let trimmed = line.trim();
+
+		if (trimmed.startsWith('<stop')) {
+			outOfStart = true;
+		}
 
 		// name -> TITL
 		if (trimmed.startsWith('<name ')) {
@@ -59,7 +64,7 @@ export async function createStringIds() {
 		}
 
 		// condition -> S000
-		else if (trimmed.startsWith('<condition ')) {
+		if (outOfStart && trimmed.startsWith('<condition ')) {
 			conditionNum++;
 			conditionNumPadded = padNumber(conditionNum, 3);
 			currentDescriptionId = `${stringIdBase}S${conditionNumPadded}`;
@@ -90,7 +95,7 @@ export async function createStringIds() {
 		}
 
 		// condition expanded --> S000-EXPA
-		if (currentDescriptionId.length > 0 && trimmed.search(/expandedStringId=[\"\']/gm) > -1) {
+		if (outOfStart && currentDescriptionId.length > 0 && trimmed.search(/expandedStringId=[\"\']/gm) > -1) {
 			line = setLineStringId(line, `${currentDescriptionId}-EXPA`, 'expandedStringId');
 		}
 
