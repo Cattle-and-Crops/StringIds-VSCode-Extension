@@ -229,9 +229,12 @@ function createNewXmlContent(data: any, text: string) {
 	}
 
 	ret.push('');
-	let newText = ret.join('\n');
+	const newText = ret.join('\n');
 
 	/* ~~ ~~ ~~ Expanded descriptions ~~ ~~ ~~ */
+	// need to use a copy of newText so we can replace the matches while looping through newText
+	let newNewText = newText + '';
+
 	// expandedDescription before expandedStringId
 	let regex = /expandedDescription=(\"|\')([^>]*?)(?<!\\)\1 expandedStringId=(\"|\')(.+)\3/g;
 	regex.lastIndex = 0;
@@ -241,9 +244,9 @@ function createNewXmlContent(data: any, text: string) {
 		/*
 		[
 			"expandedDescription=\"Hänge Zirkon-Saphir-Kombi am Händler an\r\n\r\n• Fahre mit dem MB Trac vom Hof zum Fahrzeughändler\r\n• Hänge die Lemken Zirkon an die hintere Dreipunkthydraulik\r\n• Hänge die Lemken Saphir an die Dreipunktaufhängung der Zirkon\r\n• Bringe die Saphir in Transportposition\" expandedStringId=\"CAMP-C001-M001-S002-EXPA\"",
-			"\"",
+			'"',
 			"Hänge Zirkon-Saphir-Kombi am Händler an\r\n\r\n• Fahre mit dem MB Trac vom Hof zum Fahrzeughändler\r\n• Hänge die Lemken Zirkon an die hintere Dreipunkthydraulik\r\n• Hänge die Lemken Saphir an die Dreipunktaufhängung der Zirkon\r\n• Bringe die Saphir in Transportposition",
-			"\"",
+			'"',
 			"CAMP-C001-M001-S002-EXPA",
 		]
 		*/
@@ -255,8 +258,10 @@ function createNewXmlContent(data: any, text: string) {
 
 			const stringId = match[4];
 			if (data[stringId]) {
-				const replaceText = `expandedDescription=${match[1]}${data[stringId]}${match[1]} expandedStringId=${match[3]}${stringId}${match[3]}`;
-				newText = newText.replace(match[0], replaceText);
+				const replaceText = `expandedDescription=${match[1] + data[stringId] + match[1]} expandedStringId=${
+					match[3] + stringId + match[3]
+				}`;
+				newNewText = newNewText.replace(match[0], replaceText);
 			}
 		}
 	}
@@ -292,7 +297,7 @@ function createNewXmlContent(data: any, text: string) {
 	}
 	*/
 
-	return newText;
+	return newNewText;
 }
 
 /**
