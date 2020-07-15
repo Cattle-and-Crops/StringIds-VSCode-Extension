@@ -43,12 +43,9 @@ export async function pasteStringsFromSheet() {
 	// Match to xml
 	let newContent = createNewXmlContent(data, xmlText);
 	if (newContent && newContent.length > 0) {
-		newContent.push('');
-		const newText = newContent.join('\n');
-
 		// Apply changes to document
 		editor.edit((editBuilder) => {
-			editBuilder.replace(new Range(0, 0, document.lineCount, 5000), newText);
+			editBuilder.replace(new Range(0, 0, document.lineCount, 5000), newContent);
 		});
 		window.showInformationMessage('Strings replaced');
 	}
@@ -133,41 +130,63 @@ function createNewXmlContent(data: any, text: string) {
 	let deleteLine = false;
 	let currentOpenElement = null;
 
-	for (let line of splitText) {
-		let match = line.match(/((?: |title|expanded)stringId)=(\"|\')(.*?)(\2)/i);
-		if (match) {
+	lineLoop: for (let line of splitText) {
+		let match;
+		const stringIdRegex = /((?: |title|expanded)stringId)=(\"|\')(.*?)(\2)/gim;
+		stringIdRegex.lastIndex = 0;
+
+		let pushed = false;
+
+		// TODO: line can have multiple replacements. They need to be collected or iterated over, and then the whole line needs to be pushed when all is done
+		// TODO: ignore titleStringId, as it doesn't use a fallback
+		// TODO maybe use labels to cancel if blocks: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/label
+		// TODO https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining
+		// TODO https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator
+
+		// match example
+		/* [
+			' stringId="CAMP-C001-M001-S001-I003"',
+			" stringId",
+			'"',
+			"CAMP-C001-M001-S001-I003",
+			'"'
+		] */
+
+		matchLoop: while ((match = stringIdRegex.exec(line)) !== null) {
+			if (match.index === stringIdRegex.lastIndex) {
+				stringIdRegex.lastIndex++;
+			}
+
 			let stringId = match[3];
 			if (stringId && data[stringId]) {
 				// New element found, stop deleting lines
 				deleteLine = false;
 				currentOpenElement = null;
 
-				if (match[1] === 'titleStringId') {
-					continue;
-				}
-
 				let text = data[stringId];
 				let unescapedText = customUnescape(text);
 
-				// description attribute
-				let descriptionRegex;
-				let description;
-				if (match[1] === 'expandedStringId') {
-					description = 'expandedDescription';
-					descriptionRegex = /expandedDescription=(\"|\')(.*?)(\1)/;
+				// Fallback as attribute: description, expandedDescription, title
+				let attributeRegex;
+				let attribute;
+				if (match[1] === 'titleStringId') {
+					attribute = 'title';
+					attributeRegex = /title=(\"|\')(.*?)(\1)/;
 				} else {
-					description = ' description';
-					descriptionRegex = / description=(\"|\')(.*?)(\1)/;
-				}
-				let descriptionMatch = line.match(descriptionRegex);
-				if (descriptionMatch) {
-					let quote = text.search('"') > -1 ? "'" : '"';
-					line = line.replace(descriptionRegex, `${description}=${quote}${unescapedText}${quote}`);
-					ret.push(line);
-					continue;
+					attribute = ' description';
+					attributeRegex = / description=(\"|\')(.*?)(\1)/;
 				}
 
-				// has text value
+				let attributeMatch = line.match(attributeRegex);
+				if (attributeMatch) {
+					let quote = text.search('"') > -1 ? "'" : '"';
+					line = line.replace(attributeRegex, `${attribute}=${quote}${unescapedText}${quote}`);
+					ret.push(line);
+					pushed = true;
+					continue matchLoop;
+				}
+
+				// Fallback as text value
 				if (line.search('>') > -1) {
 					let tag = line.match(/<(\w+)/);
 					if (tag && tag[1]) {
@@ -176,15 +195,17 @@ function createNewXmlContent(data: any, text: string) {
 							// closing in same line
 							line = line.replace(/>(.*?)$/gm, `>${unescapedText}${closingTag}`);
 							ret.push(line);
+							pushed = true;
 						} else {
 							// multi-line
 							line = line.replace(/>(.*?)$/gm, `>`);
 							ret.push(line);
 							ret.push(unescapedText);
+							pushed = true;
 							currentOpenElement = tag[1];
 							deleteLine = true;
 						}
-						continue;
+						continue matchLoop;
 					}
 				}
 			}
@@ -194,17 +215,84 @@ function createNewXmlContent(data: any, text: string) {
 			// Currently open element: closing tag found
 			if (line.search(`</${currentOpenElement}>`) > -1) {
 				ret.push(line);
+				pushed = true;
 				deleteLine = false;
 				currentOpenElement = null;
 			}
 
-			continue;
+			continue lineLoop;
 		}
 
-		ret.push(line);
+		if (!pushed) {
+			ret.push(line);
+		}
 	}
 
-	return ret;
+	ret.push('');
+	let newText = ret.join('\n');
+
+	/* ~~ ~~ ~~ Expanded descriptions ~~ ~~ ~~ */
+	// expandedDescription before expandedStringId
+	let regex = /expandedDescription=(\"|\')([^>]*?)(?<!\\)\1 expandedStringId=(\"|\')(.+)\3/g;
+	regex.lastIndex = 0;
+	let matches = newText.match(regex);
+	if (matches && matches.length > 0) {
+		// match example
+		/*
+		[
+			"expandedDescription=\"Hänge Zirkon-Saphir-Kombi am Händler an\r\n\r\n• Fahre mit dem MB Trac vom Hof zum Fahrzeughändler\r\n• Hänge die Lemken Zirkon an die hintere Dreipunkthydraulik\r\n• Hänge die Lemken Saphir an die Dreipunktaufhängung der Zirkon\r\n• Bringe die Saphir in Transportposition\" expandedStringId=\"CAMP-C001-M001-S002-EXPA\"",
+			"\"",
+			"Hänge Zirkon-Saphir-Kombi am Händler an\r\n\r\n• Fahre mit dem MB Trac vom Hof zum Fahrzeughändler\r\n• Hänge die Lemken Zirkon an die hintere Dreipunkthydraulik\r\n• Hänge die Lemken Saphir an die Dreipunktaufhängung der Zirkon\r\n• Bringe die Saphir in Transportposition",
+			"\"",
+			"CAMP-C001-M001-S002-EXPA",
+		]
+		*/
+		let match;
+		while ((match = regex.exec(newText)) !== null) {
+			if (match.index === regex.lastIndex) {
+				regex.lastIndex++;
+			}
+
+			const stringId = match[4];
+			if (data[stringId]) {
+				const replaceText = `expandedDescription=${match[1]}${data[stringId]}${match[1]} expandedStringId=${match[3]}${stringId}${match[3]}`;
+				newText = newText.replace(match[0], replaceText);
+			}
+		}
+	}
+
+	// expandedStringId before expandedDescription
+	// TODO doesn't work as expected - doesn't stop match at expandedDesciption's closing "
+	/*
+	regex = /expandedStringId=(\"|\')(.+)\1 expandedDescription=(\"|\')([\s\S]*?[^>]*?)(?<!\\)\3/g;
+	regex.lastIndex = 0;
+	matches = newText.match(regex);
+	if (matches && matches.length > 0) {
+		// match example
+		//[
+		//	"expandedStringId=\"CAMP-C001-M001-S002-EXPA\" expandedDescription=\"Hänge Zirkon-Saphir-Kombi am Händler an\r\n\r\n• Fahre mit dem MB Trac vom Hof zum Fahrzeughändler\r\n• Hänge die Lemken Zirkon an die hintere Dreipunkthydraulik\r\n• Hänge die Lemken Saphir an die Dreipunktaufhängung der Zirkon\r\n• Bringe die Saphir in Transportposition\"",
+		//	'"',
+		//	"CAMP-C001-M001-S002-EXPA",
+		//	'"',
+		//	"Hänge Zirkon-Saphir-Kombi am Händler an\r\n\r\n• Fahre mit dem MB Trac vom Hof zum Fahrzeughändler\r\n• Hänge die Lemken Zirkon an die hintere Dreipunkthydraulik\r\n• Hänge die Lemken Saphir an die Dreipunktaufhängung der Zirkon\r\n• Bringe die Saphir in Transportposition",
+		//]
+
+		let match;
+		while ((match = regex.exec(newText)) !== null) {
+			if (match.index === regex.lastIndex) {
+				regex.lastIndex++;
+			}
+
+			const stringId = match[2];
+			if (data[stringId]) {
+				const replaceText = `expandedDescription=${match[3]}${data[stringId]}${match[3]} expandedStringId=${match[1]}${stringId}${match[1]}`;
+				newText = newText.replace(match[0], replaceText);
+			}
+		}
+	}
+	*/
+
+	return newText;
 }
 
 /**
