@@ -1,11 +1,15 @@
-# cnc-mission-stringids README
+# Cattle and Crops Mission StringIds
 
-This extension has four functions
+This extension has four major functions:
 
 1. **Create Tutorial StringIds**: recalculate stringIds for tutorial missions. Each `condition` gets a new step number (`...-S000`), and each `window` gets the same ID with a trailing "-INFO", or "-I000" if using elements (`...-INFO` / `...-I000`). The stringId base (full path before the final stringId part) can be calculated from the filename, or a custom one can be defined.
-2. **Get String Contents**: Gather all defined stringIds and corresponding texts in a mission file and copy them to the clipboard for further usage in the CNC translations table
-3. **Paste Strings from Sheet**: Parses translation data in clipboard (from translation table), matches it to the existing XML stringId data and replaces existing text, while unescaping it where possible. Also warns if there are missing stringIds in either the clipboard or the XML file.
+2. **Get String Contents**: gather all defined stringIds and corresponding texts in a mission file and copy them to the clipboard for further usage in the CNC translations table
+3. **Paste Strings from Sheet**: parses translation data in clipboard (from translation table), matches it to the existing XML stringId data and replaces existing text, while unescaping it where possible. Also warns if there are missing stringIds in either the clipboard or the XML file.
 4. Clear all `stringId` attribute values with the **Delete StringIds** function
+
+Additionally, there's one minor function:
+
+1.  **Clean Backslashes**: replaces backslashes in the user's text selection with forward slashes
 
 ---
 
@@ -25,11 +29,18 @@ Requires VS Code v1.45.0 or higher.
 
 ## Release Notes
 
+### 0.0.7
+* **Create StringIds**, **Delete StringIds**, **Get String Contents**, **Paste Strings from Sheet**: support for `expandedStringId`/`expandedDescription`, `titleStringId`/`title`
+* **Get String Contents** now removes multiple tabs
+* **Create StringIds** now ignores start conditions before starting the condition counter
+* `stringId` attributes are handled as case insensitive
+* New minor function **Clean Backslashes**: replaces backslashes in the user's text selection with forward slashes
+
 ### 0.0.6
-* `Get String Contents` now escapes quotes, newLines and tabs
-* `Create StringIds`: user input cancellation caught
+* **Get String Contents** now escapes quotes, newLines and tabs
+* **Create StringIds**: user input cancellation caught
 * Support for window/page/element
-* `Create StringIds`, `Get String Contents`: support for window/page/element
+* **Create StringIds**, **Get String Contents**: support for window/page/element
 * New function **Paste Strings from Sheet**: Parses translation data in clipboard (from translation table), matches it to the existing XML stringId data and replaces existing text, while unescaping it where possible. Also warns if there are missing stringIds in either the clipboard or the XML file.
 
 ### 0.0.5

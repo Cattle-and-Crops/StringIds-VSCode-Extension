@@ -1,5 +1,12 @@
 # Change Log
 
+### 0.0.7
+* **Create StringIds**, **Delete StringIds**, **Get String Contents**, **Paste Strings from Sheet**: support for `expandedStringId`/`expandedDescription`, `titleStringId`/`title`
+* **Get String Contents** now removes multiple tabs
+* **Create StringIds** now ignores start conditions before starting the condition counter
+* `stringId` attributes are handled as case insensitive
+* New minor function **Clean Backslashes**: replaces backslashes in the user's text selection with forward slashes
+
 ### 0.0.6
 * `Get String Contents` now escapes quotes, newLines and tabs
 * `Create StringIds`: user input cancellation caught
