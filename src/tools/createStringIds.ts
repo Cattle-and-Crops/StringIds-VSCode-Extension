@@ -41,11 +41,16 @@ export async function createStringIds() {
 	let currentDescriptionId = '';
 	let elementNum = 0;
 	let outOfStart = false;
+
+	const windowGamepadRegex = /\<window[\s|\>].*gamepad=\"/gm;
+	const elementTextRegex = /\<element[\s|\>].*type=\"text\"/gm;
+	const expandedDescriptionRegex = /expandedStringId=[\"\']/gm;
+
 	for (let lineNumber in splitText) {
 		let line = splitText[lineNumber];
 		let trimmed = line.trim();
 
-		if (trimmed.startsWith('<stop')) {
+		if (!outOfStart && trimmed.startsWith('<stop')) {
 			outOfStart = true;
 		}
 
@@ -73,7 +78,7 @@ export async function createStringIds() {
 		}
 
 		// window gamepad -> S000-GPAD
-		else if (trimmed.search(/\<window[\s|\>].*gamepad=\"/gm) > -1) {
+		else if (windowGamepadRegex.test(trimmed)) {
 			line = setLineStringId(line, `${stringIdBase}S${conditionNumPadded}-GPAD`);
 			line = setLineStringId(line, `${stringIdBase}S${conditionNumPadded}-GTIT`, 'titleStringId');
 			elementNum = 0;
@@ -89,13 +94,13 @@ export async function createStringIds() {
 		}
 
 		// window page element -> S000-I000/S000-G000
-		else if (trimmed.search(/\<element[\s|\>].*type=\"text\"/gm) > -1) {
+		else if (elementTextRegex.test(trimmed)) {
 			elementNum++;
 			line = setLineStringId(line, `${stringIdBase}S${conditionNumPadded}-${windowType + padNumber(elementNum, 3)}`);
 		}
 
 		// condition expanded --> S000-EXPA
-		if (outOfStart && currentDescriptionId.length > 0 && trimmed.search(/expandedStringId=[\"\']/gm) > -1) {
+		if (outOfStart && currentDescriptionId.length > 0 && expandedDescriptionRegex.test(trimmed)) {
 			line = setLineStringId(line, `${currentDescriptionId}-EXPA`, 'expandedStringId');
 		}
 
