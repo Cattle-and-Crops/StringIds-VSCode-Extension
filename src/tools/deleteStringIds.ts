@@ -15,7 +15,7 @@ export async function deleteStringIds() {
 	}
 
 	let text = document.getText();
-	text = text.replace(/stringId=".*?"/gim, 'stringId=""');
+	text = text.replace(/(?<!dropdownCompare)stringId=".*?"/gim, 'stringId=""');
 	text = text.replace(/titleStringId=".*?"/gim, 'titleStringId=""');
 	text = text.replace(/expandedStringId=".*?"/gim, 'expandedStringId=""');
 
