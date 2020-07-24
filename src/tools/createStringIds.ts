@@ -45,7 +45,7 @@ export async function createStringIds() {
 	// Note: regex.prototype.test increases the regex index when it uses a global flag. In the next test, it possibly won't be able to find the string even though it's there. See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test
 	const windowGamepadRegex = /\<window[\s|\>].*gamepad=\"/m;
 	const elementTextRegex = /\<element[\s|\>].*type=\"text\"/m;
-	const expandedDescriptionRegex = /expandedStringId=[\"\']/m;
+	const expandedDescriptionRegex = /expandedStringId=[\"\']/im;
 
 	for (let lineNumber in splitText) {
 		let line = splitText[lineNumber];
