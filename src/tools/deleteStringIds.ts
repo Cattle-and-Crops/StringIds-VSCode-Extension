@@ -17,7 +17,7 @@ export async function deleteStringIds() {
 	let text = document.getText();
 	text = text.replace(/expandedstringid=("|').*?(?<!\\)\1/gim, 'expandedStringId=""');
 	text = text.replace(/titlestringid=("|').*?(?<!\\)\1/gim, 'titleStringId=""');
-	text = text.replace(/\sstringid=("|').*?(?<!\\)\1/gim, 'stringId=""');
+	text = text.replace(/(\s)stringid=("|').*?(?<!\\)\2/gim, '$1stringId=""');
 	// Unsafer alternative: https://regex101.com/r/YShhwg/1
 
 	// Apply changes to document
