@@ -156,7 +156,8 @@ export const writeTextToClipboard = (text: string, message?: string) => {
  * @source [StackOverflow](https://stackoverflow.com/questions/41068197/vscode-create-unsaved-file-and-add-content)
  */
 export const pasteTextInNewDocument = (text: string, filename: string) => {
-	const newFile = Uri.parse('untitled:' + path.join(filename));
+	// Note: using C:\ so we have a path, but without Admin rights it can't be saved, which is good as the file shouldn't be saved in the first place.
+	const newFile = Uri.parse('untitled:C:\\' + path.join(filename));
 	workspace.openTextDocument(newFile).then(async (document) => {
 		const edit = new WorkspaceEdit();
 		// edit.insert(newFile, new Position(0, 0), text);
