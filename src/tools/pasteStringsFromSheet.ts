@@ -137,8 +137,6 @@ function createNewXmlContent(data: any, text: string) {
 
 		let pushed = false;
 
-		// TODO: line can have multiple replacements. They need to be collected or iterated over, and then the whole line needs to be pushed when all is done
-		// TODO: ignore titleStringId, as it doesn't use a fallback
 		// TODO maybe use labels to cancel if blocks: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/label
 		// TODO https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining
 		// TODO https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator
@@ -318,7 +316,7 @@ function reportMissingEntries(data: any, xml: string) {
 		}
 	}
 
-	//Search XML entries in Clipboard
+	// Search XML entries in Clipboard
 	let xmlStringIds = xml.match(/stringId=(\"|\')(.*?)\1/gim);
 	if (xmlStringIds) {
 		for (const entry of xmlStringIds) {

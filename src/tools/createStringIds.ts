@@ -17,8 +17,7 @@ export async function createStringIds() {
 		return;
 	}
 
-	const filename = getFilenameFromPath(document.uri.path).toLocaleLowerCase();
-	const stringIdBase = await getStringIdBase(filename);
+	const stringIdBase = await getStringIdBase(document.uri.path);
 
 	let text = document.getText();
 
@@ -123,18 +122,37 @@ export async function createStringIds() {
  * @param {string} filename - The mission's filename including suffix
  * @returns {string} The stringId base in the format of TUTO-0102-T003
  */
-const getStringIdBaseFromFilename = (filename: string): string | null => {
+const getStringIdBaseFromPath = (path: string): string | null => {
+	let filename = getFilenameFromPath(path).toLocaleLowerCase();
+
 	let base = 'BASE';
-	for (const type of [
-		['campaign', 'CAMP'],
-		['mission', 'MISS'],
-		['tutorial', 'TUTO'],
-	]) {
-		if (filename.toLowerCase().search(type[0]) > -1) {
-			base = type[1];
-			break;
+	let doSearch = true;
+
+	// Get campaign and mission data if available
+	let pathObjects = path.split('/');
+	let folder = '';
+	if (pathObjects && pathObjects.length > 1) {
+		let last = pathObjects[pathObjects.length - 1];
+		folder = pathObjects[pathObjects.length - 2];
+		if (filename === last && folder.toLowerCase().includes('campaign')) {
+			base = 'CAMP';
+			doSearch = false;
 		}
 	}
+
+	if (doSearch) {
+		for (const type of [
+			['campaign', 'CAMP'],
+			['mission', 'MISS'],
+			['tutorial', 'TUTO'],
+		]) {
+			if (filename.toLowerCase().search(type[0]) > -1) {
+				base = type[1];
+				break;
+			}
+		}
+	}
+
 	let ret = [base];
 
 	if (base === 'TUTO') {
@@ -148,13 +166,27 @@ const getStringIdBaseFromFilename = (filename: string): string | null => {
 
 			return ret.join('');
 		}
-	} else if (base === 'MISS' || base === 'CAMP') {
+	} else if (base === 'MISS') {
 		let matches = filename.match(/(\d+)/g);
-		if (matches && matches[1]) {
-			ret.push('-MI' + padNumber(Number(matches[1]), 2));
+		if (matches && matches.length > 0) {
+			ret.push('-MI' + padNumber(Number(matches[0]), 2));
 
 			return ret.join('');
 		}
+	} else if (base === 'CAMP') {
+		let folderMatches = folder.match(/\d+/g);
+		if (folderMatches && folderMatches.length > 0) {
+			ret.push('-C' + padNumber(Number(folderMatches[0]), 3));
+		}
+
+		let filenameMatches = filename.match(/(\d+)/g);
+		if (filenameMatches && filenameMatches.length > 0) {
+			ret.push('-M' + padNumber(Number(filenameMatches[0]), 3));
+		}
+	}
+
+	if ('BASE' !== base) {
+		return ret.join('');
 	}
 
 	return null;
@@ -165,8 +197,8 @@ const getStringIdBaseFromFilename = (filename: string): string | null => {
  * @param {string} filename the file's name
  * @returns {Promise<string>} The proposed or entered `stringId` base
  */
-async function getStringIdBase(filename: string): Promise<string> {
-	const proposal = getStringIdBaseFromFilename(filename);
+async function getStringIdBase(path: string): Promise<string> {
+	const proposal = getStringIdBaseFromPath(path);
 	const regex = /^([A-Za-z0-9_])+$/gm;
 
 	// Show the input box and wait for input
