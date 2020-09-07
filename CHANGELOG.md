@@ -1,5 +1,11 @@
 # Change Log
 
+### 0.0.8
+* **Delete StringIds**: whitespace in front of "stringId" won't be deleted anymore
+* **Create StringIds**: `gamepad="false"` etc. is now caught
+* **Create StringIds**: automatic stringId base proposal for campaign XMLs
+* **Get StringIds**: temporary .tsv file is stored on C:\ so it won't be lost in the dark regions of VS Code
+
 ### 0.0.7
 * **Create StringIds**, **Delete StringIds**, **Get String Contents**, **Paste Strings from Sheet**: support for `expandedStringId`/`expandedDescription`, `titleStringId`/`title`
 * **Get String Contents** now removes multiple tabs
