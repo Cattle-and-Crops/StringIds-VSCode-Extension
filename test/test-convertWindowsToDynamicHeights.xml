@@ -1,5 +1,5 @@
 <condition type="infoWindow" description="Schließe das Info-Fenster" stringId="TUTO-0302-T002-S031">
-	<window position="center" hideTitle="true" stringId="TUTO-0302-T002-S031-INFO">
+	<window position="rightTop" hideTitle="true" stringId="TUTO-0302-T002-S031-INFO">
 					Das ist alles was du zur Saat mit Saatkombinationen wissen musst. Du kannst weitermachen und das Feld zu Ende säen, oder diesen Schritt überspringen und das Resultat ansehen.
 	</window>
 </condition>
@@ -14,7 +14,7 @@
 	</window>
 </condition>
 
-<window size="underCondition" position="center" hideTitle="true">
+<window size="underCondition250" position="center" hideTitle="true">
 	<page>
 		<element type="text" stringId="TUTO-0302-T002-S001-I001">
 							Sommergerste in eine spezielle Getreideunterart, die im Gegensatz zur Wintergerste über Frühjahr und Sommer wächst und somit im Frühling gesät wird. Generell gilt auch für Getreide einen optimalen Aussaatzeitpunkt zu wählen. Sommergerste ist im Gegensatz zu Mais oder anderen Pflanzen weniger anfällig für Kälte und kann daher für gewöhnlich früher ausgesäht werden. Daher ergibt sich für Sommergerste ein Aussaatzeitraum zwischen Ende Februar und Anfang April.

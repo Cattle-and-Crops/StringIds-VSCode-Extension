@@ -1,6 +1,6 @@
 import { Range, window } from 'vscode';
 
-export async function convertWindowsToDynamicHeight() {
+export function convertWindowsToDynamicHeight() {
 	const editor = window.activeTextEditor;
 	if (!editor) {
 		return;
@@ -15,13 +15,13 @@ export async function convertWindowsToDynamicHeight() {
 	let text = document.getText();
 
 	// (1) Switch 'position' and ' size' if in wrong order, also add either of the two if missing
-	text = setWindowPositionSizeAttributes(text);
+	text = setPositionSizeAttributes(text);
 
 	// (2) Convert old type windows to "new" ones
 	text = convertOldWindows(text);
 
 	// (3) Add dynamic height attributes
-	// text = addDynamicHeight(text);
+	text = addDynamicHeight(text);
 
 	// (4) Update document
 	editor.edit((editBuilder) => {
@@ -35,7 +35,7 @@ export async function convertWindowsToDynamicHeight() {
  * @param text The complete input xml content
  * @returns Complete XML content
  */
-function setWindowPositionSizeAttributes(text: string) {
+function setPositionSizeAttributes(text: string) {
 	let ret = text;
 
 	// (1) Add missing "size" attribute
@@ -118,7 +118,7 @@ function addDynamicHeight(text: string) {
 		afterSize: string
 	) => {
 		// Remove numbers from 'size' value
-		size = size.replace(/([A-Za-z]+)\d+/g, '$1');
+		size = size.replace(/[0-9]/g, '');
 
 		let newText = `${indent}<window${beforePosition}position="${position}"${beforeSize}size="${size}"`;
 
@@ -152,15 +152,40 @@ const sizes: any = {
 		button: 60,
 	},
 
-	underCondition: {
-		total: 610,
-		topMargin: 0,
-		bottomMargin: 0,
+	default: {
+		total: 1080,
+		topMargin: 90,
+		bottomMargin: 120,
 	},
 	center: {
 		total: 1080,
 		topMargin: 120, // quickSlots, as the window is vertically centered
 		bottomMargin: 120, // quickSlots
+	},
+	centerTop: {
+		total: 1080,
+		topMargin: 20,
+		bottomMargin: 120,
+	},
+	rightCenter: {
+		total: 1080,
+		topMargin: 300, // speedometer, as the window is vertically centered
+		bottomMargin: 300, // speedometer
+	},
+	rightTop: {
+		total: 1080,
+		topMargin: 0,
+		bottomMargin: 300, // speedometer
+	},
+	rightUnderCondition: {
+		total: 1080,
+		topMargin: 175, // condition
+		bottomMargin: 300, // speedometer
+	},
+	underCondition: {
+		total: 610,
+		topMargin: 0,
+		bottomMargin: 0,
 	},
 };
 
