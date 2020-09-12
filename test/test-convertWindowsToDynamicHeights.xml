@@ -5,7 +5,7 @@
 </condition>
 
 <condition type="infoWindow" makeHidden="true" description="Beende das Tutorial" stringId="TUTO-0302-T002-S034">
-	<window size="center">
+	<window size="medium">
 		<page showContinue="true" buttonStringId="MCMD-CMPL">
 			<element type="text" stringId="TUTO-0302-T002-S034-I001">
 							Das Resultat lässt sich sehen, die Gerste ist nach wenigen Tagen aufgegangen und die Pflanzen entwickeln sich gut. Um einen weiteren optimalen Wachstumsverlauf garantieren zu können, solltest du deine Pflanzen zusätzlich düngen. Wie genau das funktioniert, erfährst du in der Kategorie "Düngen".
@@ -14,7 +14,7 @@
 	</window>
 </condition>
 
-<window size="underCondition250" position="center" hideTitle="true">
+<window size="underCondition250" position="centerTop" hideTitle="true">
 	<page>
 		<element type="text" stringId="TUTO-0302-T002-S001-I001">
 							Sommergerste in eine spezielle Getreideunterart, die im Gegensatz zur Wintergerste über Frühjahr und Sommer wächst und somit im Frühling gesät wird. Generell gilt auch für Getreide einen optimalen Aussaatzeitpunkt zu wählen. Sommergerste ist im Gegensatz zu Mais oder anderen Pflanzen weniger anfällig für Kälte und kann daher für gewöhnlich früher ausgesäht werden. Daher ergibt sich für Sommergerste ein Aussaatzeitraum zwischen Ende Februar und Anfang April.

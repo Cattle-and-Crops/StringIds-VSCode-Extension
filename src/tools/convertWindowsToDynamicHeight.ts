@@ -145,6 +145,7 @@ function addDynamicHeight(text: string) {
 }
 
 const sizes: any = {
+	screenTotal: 1080,
 	content: {
 		offset: 60,
 		paddingBottom: 20,
@@ -153,39 +154,32 @@ const sizes: any = {
 	},
 
 	default: {
-		total: 1080,
 		topMargin: 90,
 		bottomMargin: 120,
 	},
 	center: {
-		total: 1080,
 		topMargin: 120, // quickSlots, as the window is vertically centered
 		bottomMargin: 120, // quickSlots
 	},
 	centerTop: {
-		total: 1080,
 		topMargin: 20,
 		bottomMargin: 120,
 	},
 	rightCenter: {
-		total: 1080,
 		topMargin: 300, // speedometer, as the window is vertically centered
 		bottomMargin: 300, // speedometer
 	},
 	rightTop: {
-		total: 1080,
 		topMargin: 0,
 		bottomMargin: 300, // speedometer
 	},
 	rightUnderCondition: {
-		total: 1080,
 		topMargin: 175, // condition
 		bottomMargin: 300, // speedometer
 	},
 	underCondition: {
-		total: 610,
-		topMargin: 0,
-		bottomMargin: 0,
+		topMargin: 175,
+		bottomMargin: 310,
 	},
 };
 
@@ -197,17 +191,12 @@ const sizes: any = {
  * @param pages Indicates if the window uses multiple pages
  */
 function getOptimalSize(position: string = 'underCondition', button: boolean = false, pages: boolean = false): number {
-	let ret = 580;
-
-	let data = sizes[position];
-	if (!data) {
-		data = sizes.underCondition;
-	}
+	let data = sizes[position] || sizes.underCondition;
 
 	// Calculation
-	ret = data.total - data.topMargin - data.bottomMargin;
-
+	let ret = sizes.screenTotal - data.topMargin - data.bottomMargin;
 	ret -= sizes.content.offset;
+	ret -= sizes.content.paddingBottom;
 	if (button) {
 		ret -= sizes.content.button;
 	}
