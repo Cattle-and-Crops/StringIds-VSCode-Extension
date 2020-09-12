@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 
 import { cleanBackslashes } from './tools/cleanBackslashes';
+import { convertWindowsToDynamicHeight } from './tools/convertWindowsToDynamicHeight';
 import { createStringIds } from './tools/createStringIds';
 import { deleteStringIds } from './tools/deleteStringIds';
 import { getStringContents } from './tools/getStringContents';
@@ -10,6 +11,11 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.commands.registerCommand('cnc-mission-stringids.cleanBackslashes', () => {
 			cleanBackslashes();
+		})
+	);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('cnc-mission-stringids.convertWindowsToDynamicHeight', () => {
+			convertWindowsToDynamicHeight();
 		})
 	);
 	context.subscriptions.push(

@@ -17,6 +17,7 @@
 	],
 	"activationEvents": [
 		"onCommand:cnc-mission-stringids.cleanBackslashes",
+		"onCommand:cnc-mission-stringids.convertWindowsToDynamicHeight",
 		"onCommand:cnc-mission-stringids.createStringIds",
 		"onCommand:cnc-mission-stringids.deleteStringIds",
 		"onCommand:cnc-mission-stringids.getStringContents",
@@ -28,6 +29,11 @@
 			{
 				"command": "cnc-mission-stringids.cleanBackslashes",
 				"title": "Clean Backslashes",
+				"category": "Cattle and Crops"
+			},
+			{
+				"command": "cnc-mission-stringids.convertWindowsToDynamicHeight",
+				"title": "Convert Windows to Dynamic Height",
 				"category": "Cattle and Crops"
 			},
 			{
@@ -59,6 +65,11 @@
 					"when": "editorHasSelection && editorLangId == xml"
 				},
 				{
+					"command": "cnc-mission-stringids.convertWindowsToDynamicHeight",
+					"group": "Cattle and Crops",
+					"when": "resourceExtname == .xml || editorLangId == xml"
+				},
+				{
 					"command": "cnc-mission-stringids.createStringIds",
 					"group": "Cattle and Crops",
 					"when": "resourceExtname == .xml || editorLangId == xml"
@@ -82,8 +93,13 @@
 			"editor/context": [
 				{
 					"command": "cnc-mission-stringids.cleanBackslashes",
-					"group": "Cattle and Crops@5",
+					"group": "Cattle and Crops@6",
 					"when": "editorHasSelection && editorLangId == xml"
+				},
+				{
+					"command": "cnc-mission-stringids.convertWindowsToDynamicHeight",
+					"group": "Cattle and Crops@3",
+					"when": "resourceExtname == .xml || editorLangId == xml"
 				},
 				{
 					"command": "cnc-mission-stringids.createStringIds",
@@ -92,7 +108,7 @@
 				},
 				{
 					"command": "cnc-mission-stringids.deleteStringIds",
-					"group": "Cattle and Crops@4",
+					"group": "Cattle and Crops@5",
 					"when": "resourceExtname == .xml || editorLangId == xml"
 				},
 				{
@@ -102,7 +118,7 @@
 				},
 				{
 					"command": "cnc-mission-stringids.pasteStringsFromSheet",
-					"group": "Cattle and Crops@3",
+					"group": "Cattle and Crops@4",
 					"when": "resourceExtname == .xml || editorLangId == xml"
 				}
 			]
