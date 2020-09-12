@@ -1,10 +1,4 @@
 import { Range, window } from 'vscode';
-import { getFilenameFromPath, padNumber } from '../helpers/helpers';
-
-/**
- *
- *
- */
 
 export async function convertWindowsToDynamicHeight() {
 	const editor = window.activeTextEditor;
@@ -18,29 +12,16 @@ export async function convertWindowsToDynamicHeight() {
 		return;
 	}
 
-	// TODO
-	/*
-	https://regex101.com/r/cGS4ta/5/
-
-	find <window ... content ... lazy </window>
-	<window.*size=("|')(\w+)\1
-		if size == (\w+)\d\d\d -> replace with $1
-	<window.*position=("|')(\w+)\1 -> position = $2
-	content:
-		are there <page.*<page without any <window before them after that? -> pages = true
-		is there showContrinue="true" after that without any <window before that? -> button == true
-	 */
-
 	let text = document.getText();
 
-	// (1) Switch 'position' and ' size' if in wrong order
-	text = setWindowAttributeOrder(text);
+	// (1) Switch 'position' and ' size' if in wrong order, also add either of the two if missing
+	text = setWindowPositionSizeAttributes(text);
 
 	// (2) Convert old type windows to "new" ones
 	text = convertOldWindows(text);
 
 	// (3) Add dynamic height attributes
-	text = addDynamicHeight(text);
+	// text = addDynamicHeight(text);
 
 	// (4) Update document
 	editor.edit((editBuilder) => {
@@ -54,8 +35,23 @@ export async function convertWindowsToDynamicHeight() {
  * @param text The complete input xml content
  * @returns Complete XML content
  */
-function setWindowAttributeOrder(text: string) {
-	return text.replace(/<window size="(.*?)"\s+?position="(.*?)"/gm, '<window position="$2" size="$1"');
+function setWindowPositionSizeAttributes(text: string) {
+	let ret = text;
+
+	// (1) Add missing "size" attribute
+	ret = ret.replace(/<window((?!size).)*$/gm, (match: string) => {
+		return '<window size="small" ' + match.substring('<window '.length);
+	});
+
+	// (2) Add missing "position" attribute
+	ret = ret.replace(/<window((?!position).)*$/gm, (match: string) => {
+		return '<window position="default" ' + match.substring('<window '.length);
+	});
+
+	// (3) position vs size order
+	ret = ret.replace(/<window size="(.*?)"\s+?position="(.*?)"/gm, '<window position="$2" size="$1"');
+
+	return ret;
 }
 
 /**
@@ -75,23 +71,34 @@ function convertOldWindows(
 	continueButton: boolean = false,
 	changeStringId: boolean = false
 ) {
-	const regex = /^(\t*)<window\s+(?!size|position)(.*?)stringId="(.*?)"(.*?)>(.*?)<\/window>/gms;
-	const callback = (
-		match: string,
-		indentBase: string,
-		beforeStringId: string,
-		stringId: string,
-		afterStringId: string,
-		content: string
-	) => {
-		if (changeStringId) {
-			stringId = stringId.replace('-INFO', '-I001');
+	const regex = /^(\t*)<window([^\n\r]*?)stringId="(.*?)"(.*?)>(.*?)<\/window>/gms;
+	const callback = (match: string, indent: string, beforeStringId: string, stringId: string, afterStringId: string, content: string) => {
+		if (!content.includes('<page')) {
+			// <window> line
+			let ret = `${indent}<window`;
+			if (!match.includes('position="')) {
+				ret += ` position="${position}"`;
+			}
+			if (!match.includes('size="')) {
+				ret += ` size="${size}"`;
+			}
+			ret += beforeStringId + afterStringId + '>\n';
+
+			// <page> line
+			ret += `${indent}	<page${continueButton ? ' showContinue="true"' : ''}>\n`;
+
+			// <element /> line and closing tags
+			if (changeStringId) {
+				stringId = stringId.replace('-INFO', '-I001');
+			}
+			ret += `${indent}		<element type="text" stringId="${stringId}">${content.trim()}</element>
+${indent}	</page>
+${indent}</window>`;
+
+			return ret;
 		}
-		return `${indentBase}<window position="${position}" size="${size}"${beforeStringId}${afterStringId}>
-${indentBase}	<page showContinue="${continueButton ? 'true' : 'false'}">
-${indentBase}		<element type="text" stringId="${stringId}">${content.trim()}</element>
-${indentBase}	</page>
-${indentBase}</window>`;
+
+		return match;
 	};
 
 	let newText = text.replace(regex, callback);
@@ -99,30 +106,42 @@ ${indentBase}</window>`;
 }
 
 function addDynamicHeight(text: string) {
-	/*
-	// const windowRegex = /<window(.*?)>(.*?)<\/window>/gms;
-	const windowRegex = /<window.*?position="(.+?)" size="(.+?)".*?>(.*?)<\/window>/gms;
-	// const windows = text.match(windowRegex);
-	let match = windowRegex.exec(text);
-	while (match !== null) {
-		if (match && match.length >= 3) {
-			// let sizePosMatch = //gm.exec(match[1]);
-			let sizeMatch = match[1].match(/(size="(.+?)")/gm);
-			let posMatch = match[1].match(/(position="(.+?)")/gm);
+	// https://regex101.com/r/GWUyee/1
+	const regex = /^(\t*)<window(.*?)position="(.+?)"(.*?)size="(.+?)"(.*?>.*?<\/window>)/gms;
+	const callback = (
+		match: string,
+		indent: string,
+		beforePosition: string,
+		position: string,
+		beforeSize: string,
+		size: string,
+		afterSize: string
+	) => {
+		// Remove numbers from 'size' value
+		size = size.replace(/([A-Za-z]+)\d+/g, '$1');
+
+		let newText = `${indent}<window${beforePosition}position="${position}"${beforeSize}size="${size}"`;
+
+		// Insert Dynamic Height
+		if (!afterSize.includes('dynamicHeight')) {
+			// Has button
+			const hasButton = afterSize.includes('showContinue="true"');
+
+			// Multiple pages
+			const multiPages = (afterSize.match(/<page/gms) || []).length > 1;
+
+			// Get max height
+			const maxHeight = getOptimalSize(position, hasButton, multiPages);
+
+			newText += ` dynamicHeight="true" maxHeight="${maxHeight}"`;
 		}
 
-		match = windowRegex.exec(text);
-	}
-	*/
+		newText += afterSize;
+		return newText;
+	};
 
-	/* 	if (windows) {
-		for (const window of windows) {
-
-			const match1 = window.match(windowRegex);
-		}
-	} */
-
-	return text;
+	let newText = text.replace(regex, callback);
+	return newText;
 }
 
 const sizes: any = {
@@ -132,11 +151,6 @@ const sizes: any = {
 		pages: 40,
 		button: 60,
 	},
-	replaceSize: {
-		medium550: 'medium',
-		underCondition250: 'underCondition',
-		underCondition300: 'underCondition',
-	},
 
 	underCondition: {
 		total: 610,
@@ -145,8 +159,8 @@ const sizes: any = {
 	},
 	center: {
 		total: 1080,
-		topMargin: 120,
-		bottomMargin: 120,
+		topMargin: 120, // quickSlots, as the window is vertically centered
+		bottomMargin: 120, // quickSlots
 	},
 };
 
@@ -160,17 +174,20 @@ const sizes: any = {
 function getOptimalSize(position: string = 'underCondition', button: boolean = false, pages: boolean = false): number {
 	let ret = 580;
 
-	const data = sizes[position];
-	if (data) {
-		ret = data.total - data.topMargin - data.bottomMargin;
+	let data = sizes[position];
+	if (!data) {
+		data = sizes.underCondition;
+	}
 
-		ret -= sizes.content.offset;
-		if (button) {
-			ret -= sizes.content.button;
-		}
-		if (pages) {
-			ret -= sizes.content.pages;
-		}
+	// Calculation
+	ret = data.total - data.topMargin - data.bottomMargin;
+
+	ret -= sizes.content.offset;
+	if (button) {
+		ret -= sizes.content.button;
+	}
+	if (pages) {
+		ret -= sizes.content.pages;
 	}
 
 	return ret;
